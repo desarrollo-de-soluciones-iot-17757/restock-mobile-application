@@ -28,7 +28,8 @@ class BranchRemoteDataProvider {
   ) async {
     try {
       final Uri uri = Uri.parse(
-        '${ApiConstants.baseUrl}${ApiConstants.branchesByAccountId.replaceAll('{accountId}', accountId)}',
+        '${ApiConstants.baseUrl}${ApiConstants.branches}'
+      ).replace(queryParameters: {'accountId': accountId}
       );
 
       final response = await http.get(uri);
@@ -52,8 +53,8 @@ class BranchRemoteDataProvider {
   ) async {
     try {
       final Uri uri = Uri.parse(
-        '${ApiConstants.baseUrl}${ApiConstants.branchesByAccountId.replaceAll('{accountId}', accountId)}',
-      );
+        '${ApiConstants.baseUrl}${ApiConstants.branches}'
+      ).replace(queryParameters: {'accountId': accountId});
 
       final multipartRequest = await request.toMultipartRequest(uri, 'POST');
 

@@ -59,7 +59,7 @@ class BranchRepositoryImpl implements BranchRepository {
       final request = RegisterBranchRequest(
         name: command.name,
         address: command.address,
-        stateOrRegion: command.stateOrRegion,
+        regionOrState: command.stateOrRegion,
         city: command.city,
         country: command.country,
         description: command.description,
