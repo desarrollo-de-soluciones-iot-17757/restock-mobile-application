@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 
 /// A widget that represents a card with a dotted border, used to indicate the option to add a new custom supply in the [CustomSupplyListView].
 class DottedAddCard extends StatelessWidget {
-  const DottedAddCard({super.key});
+  const DottedAddCard({super.key, this.onTap});
+
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFEDF7ED), 
+        color: const Color(0xFFEDF7ED),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: const Color(0xFF2E6F40),
@@ -17,7 +19,7 @@ class DottedAddCard extends StatelessWidget {
         ),
       ),
       child: InkWell(
-        onTap: () {},
+        onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -34,12 +36,12 @@ class DottedAddCard extends StatelessWidget {
             Text(
               'Add Custom\nSupply',
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Color(0xFF2E6F40),
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
               ),
-            )
+            ),
           ],
         ),
       ),

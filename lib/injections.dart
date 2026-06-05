@@ -19,6 +19,7 @@ import 'package:restock/resources/presentation/branches/branch_detail/bloc/branc
 import 'package:restock/resources/presentation/branches/branch_list/bloc/branch_list_bloc.dart';
 import 'package:restock/resources/presentation/branches/branch_status/bloc/branch_status_bloc.dart';
 import 'package:restock/resources/presentation/branches/create_and_edit_branch/blocs/create_and_edit_branch_bloc.dart';
+import 'package:restock/resources/presentation/custom_supplies/create_custom_supply/bloc/create_custom_supply_bloc.dart';
 import 'package:restock/resources/presentation/custom_supplies/custom_supply_list/bloc/custom_supply_list_bloc.dart';
 import 'package:restock/shared/infrastructure/database/local_database.dart';
 import 'package:restock/shared/infrastructure/services/auth_status_notifier.dart';
@@ -120,6 +121,7 @@ Future<void> rmDependencies() async {
   serviceLocator.registerLazySingleton<CustomSupplyFacadeService>(
     () => CustomSupplyFacadeService(
       customSupplyRepository: serviceLocator<CustomSupplyRepository>(),
+      tokenStorage: serviceLocator<TokenStorage>(),
     ),
   );
 
@@ -135,7 +137,8 @@ Future<void> rmDependencies() async {
 
   // Custom Supply
   serviceLocator.registerLazySingleton<CustomSupplyRemoteDataProvider>(
-    () => CustomSupplyRemoteDataProvider(),
+    () =>
+        CustomSupplyRemoteDataProvider(http: serviceLocator<AuthHttpClient>()),
   );
 
   serviceLocator.registerLazySingleton<CustomSupplyRepository>(
@@ -166,6 +169,12 @@ Future<void> rmDependencies() async {
   // Custom Supply List Bloc
   serviceLocator.registerFactory<CustomSupplyListBloc>(
     () => CustomSupplyListBloc(
+      customSupplyFacadeService: serviceLocator<CustomSupplyFacadeService>(),
+    ),
+  );
+
+  serviceLocator.registerFactory<CreateCustomSupplyBloc>(
+    () => CreateCustomSupplyBloc(
       customSupplyFacadeService: serviceLocator<CustomSupplyFacadeService>(),
     ),
   );
