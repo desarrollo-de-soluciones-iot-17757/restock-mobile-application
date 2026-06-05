@@ -22,7 +22,9 @@ class ApiConstants {
       'branches/{branchId}/custom-supplies';
 
   // Endpoints for branches.
-  static final String branchesByAccountId = 'accounts/{accountId}/branches';
+  static final String branches = 'branches';
 
   static String branchById = 'branches/{branchId}';
+
+  static String branchStatus = 'branches/{branchId}/status';
 }

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:restock/shared/presentation/widgets/network_aware_image.dart';
 
 /// A custom AppBar widget for the Restock application, featuring a distinctive design and layout.
-/// 
+///
 /// This AppBar includes a title, subtitle, notification icon with badge, and a user profile avatar.
 class RestockAppBar extends StatelessWidget implements PreferredSizeWidget {
   const RestockAppBar({super.key});
@@ -56,8 +57,7 @@ class RestockAppBar extends StatelessWidget implements PreferredSizeWidget {
                 color: Colors.white,
                 size: 26,
               ),
-              onPressed: () {
-              },
+              onPressed: () {},
             ),
             Positioned(
               top: 8,
@@ -75,16 +75,24 @@ class RestockAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
         const SizedBox(width: 4),
         Padding(
-          padding: const EdgeInsets.only(
-            right: 20,
-          ),
+          padding: const EdgeInsets.only(right: 20),
           child: GestureDetector(
             onTap: () {},
             child: const CircleAvatar(
               radius: 20,
               backgroundColor: Color(0xFF2A3550),
-              backgroundImage: NetworkImage(
-                'https://pbs.twimg.com/profile_images/1481345033878085634/r4uZxGeb_400x400.jpg',
+              child: ClipOval(
+                child: NetworkAwareImage(
+                  imageUrl:
+                      'https://pbs.twimg.com/profile_images/1481345033878085634/r4uZxGeb_400x400.jpg',
+                  width: 40,
+                  height: 40,
+                  placeholder: Icon(
+                    Icons.person_outline,
+                    color: Color(0xFF8899AA),
+                    size: 22,
+                  ),
+                ),
               ),
             ),
           ),
