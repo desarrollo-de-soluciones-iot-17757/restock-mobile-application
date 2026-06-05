@@ -78,7 +78,7 @@ class BranchCard extends StatelessWidget {
   void _openEditSheet(BuildContext context) async {
     final branchListBloc = context.read<BranchListBloc>();
 
-    final updated = await showModalBottomSheet<bool>(
+    final updated = await showModalBottomSheet<Object?>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
@@ -106,7 +106,14 @@ class BranchCard extends StatelessWidget {
       ),
     );
 
-    if (updated == true) {
+    if (updated is String) {
+      branchListBloc.add(
+        BranchStatusUpdated(
+          branchId: branch.branchId,
+          status: updated,
+        ),
+      );
+    } else if (updated == true) {
       branchListBloc.add(const GetBranches());
     }
   }

@@ -26,8 +26,6 @@ class BranchesPage extends StatefulWidget {
 class _BranchesPageState extends State<BranchesPage> {
   @override
   Widget build(BuildContext context) {
-    context.read<BranchListBloc>().add(const GetBranches());
-
     return Scaffold(
       backgroundColor: background,
       appBar: const RestockAppBar(),

@@ -140,7 +140,11 @@ class _CreateAndEditBranchViewState extends State<_CreateAndEditBranchView> {
         listenWhen: (prev, curr) => prev.status != curr.status,
         listener: (context, state) {
           if (state.status == Status.success) {
-            Navigator.of(context).pop(true);
+            final branchStatus = context
+                .read<CreateAndEditBranchBloc>()
+                .state
+                .branchStatus;
+            Navigator.of(context).pop(branchStatus);
           } else if (state.status == Status.failure) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(

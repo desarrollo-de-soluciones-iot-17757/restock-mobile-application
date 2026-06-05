@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:restock/shared/presentation/widgets/network_aware_image.dart';
 
 /// A widget that allows users to pick an image from their gallery and displays it.
 /// It also supports displaying an existing image from a URL if provided.
@@ -50,30 +50,18 @@ class _ImagePickerFieldState extends State<ImagePickerField> {
     } else if (widget.imageUrl != null && widget.imageUrl!.isNotEmpty) {
       content = ClipRRect(
         borderRadius: BorderRadius.circular(9),
-        child: FutureBuilder<File>(
-          future: DefaultCacheManager().getSingleFile(widget.imageUrl!),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return Image.file(
-                snapshot.data!,
-                fit: BoxFit.cover,
-                width: double.infinity,
-                height: double.infinity,
-              );
-            }
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CircularProgressIndicator(strokeWidth: 2),
-              );
-            }
-            return const Center(
-              child: Icon(
-                Icons.broken_image_outlined,
-                size: 40,
-                color: Color(0xFF9AA5B4),
-              ),
-            );
-          },
+        child: NetworkAwareImage(
+          imageUrl: widget.imageUrl,
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
+          placeholder: const Center(
+            child: Icon(
+              Icons.broken_image_outlined,
+              size: 40,
+              color: Color(0xFF9AA5B4),
+            ),
+          ),
         ),
       );
     } else {

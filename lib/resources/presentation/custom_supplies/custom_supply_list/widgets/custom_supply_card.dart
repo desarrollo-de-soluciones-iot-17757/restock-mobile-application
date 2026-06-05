@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:restock/resources/domain/entities/custom_supply.dart';
+import 'package:restock/shared/presentation/widgets/network_aware_image.dart';
 
 /// A card widget to display a supply item in the custom supply list.
-/// 
+///
 /// Displays the supply's image, category, name, unit price, and unit of measure.
 class SupplyItemCard extends StatelessWidget {
   const SupplyItemCard({required this.supply, super.key});
@@ -23,11 +24,21 @@ class SupplyItemCard extends StatelessWidget {
         children: [
           Expanded(
             child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
               child: Container(
                 width: double.infinity,
                 color: const Color(0xFFF3F4F6),
-                child: Image.network(supply.imageUrl, fit: BoxFit.cover)
+                child: NetworkAwareImage(
+                  imageUrl: supply.imageUrl,
+                  fit: BoxFit.cover,
+                  placeholder: const Icon(
+                    Icons.inventory_2_outlined,
+                    color: Color(0xFF9AA5B4),
+                    size: 44,
+                  ),
+                ),
               ),
             ),
           ),
