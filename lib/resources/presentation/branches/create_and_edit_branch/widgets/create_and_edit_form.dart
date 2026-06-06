@@ -153,9 +153,12 @@ class _CreateAndEditBranchViewState extends State<_CreateAndEditBranchView> {
             );
           }
         },
-        child: SizedBox(
-          height: MediaQuery.of(context).size.height * 0.65,
-          child: SafeArea(
+        child: DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.65,
+          minChildSize: 0.45,
+          maxChildSize: 0.95,
+          builder: (context, scrollController) => SafeArea(
             child: Column(
               children: [
                 const SizedBox(height: 12),
@@ -196,6 +199,7 @@ class _CreateAndEditBranchViewState extends State<_CreateAndEditBranchView> {
                 const SizedBox(height: 20),
                 Expanded(
                   child: SingleChildScrollView(
+                    controller: scrollController,
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child:
                         BlocBuilder<
@@ -204,18 +208,20 @@ class _CreateAndEditBranchViewState extends State<_CreateAndEditBranchView> {
                         >(
                           buildWhen: (prev, curr) =>
                               prev.isEditing != curr.isEditing ||
-                              prev.branchStatus != curr.branchStatus,
+                              prev.branchStatus != curr.branchStatus ||
+                              prev.status != curr.status,
                           builder: (context, state) {
                             final isActive = state.branchStatus == 'active';
                             final isEditing = state.isEditing;
+                            final isLoading = state.status == Status.loading;
 
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 ImagePickerField(
                                   imageUrl: widget.branch?.imageUrl,
-                                  enabled: isActive,
-                                  onImagePicked: isActive
+                                  enabled: isActive && !isLoading,
+                                  onImagePicked: isActive && !isLoading
                                       ? (xFile) => _dispatch(
                                           CreateAndEditBranchImageChanged(
                                             xFile,
@@ -228,8 +234,8 @@ class _CreateAndEditBranchViewState extends State<_CreateAndEditBranchView> {
                                 RestockTextField(
                                   controller: _nameController,
                                   hint: 'BRANCH NAME',
-                                  enabled: isActive,
-                                  onChanged: isActive
+                                  enabled: isActive && !isLoading,
+                                  onChanged: isActive && !isLoading
                                       ? (v) => _dispatch(
                                           CreateAndEditBranchNameChanged(v),
                                         )
@@ -240,8 +246,8 @@ class _CreateAndEditBranchViewState extends State<_CreateAndEditBranchView> {
                                 RestockTextField(
                                   controller: _addressController,
                                   hint: 'STREET ADDRESS',
-                                  enabled: isActive,
-                                  onChanged: isActive
+                                  enabled: isActive && !isLoading,
+                                  onChanged: isActive && !isLoading
                                       ? (v) => _dispatch(
                                           CreateAndEditBranchAddressChanged(v),
                                         )
@@ -252,8 +258,8 @@ class _CreateAndEditBranchViewState extends State<_CreateAndEditBranchView> {
                                 RestockTextField(
                                   controller: _stateOrRegionController,
                                   hint: 'STATE / REGION',
-                                  enabled: isActive,
-                                  onChanged: isActive
+                                  enabled: isActive && !isLoading,
+                                  onChanged: isActive && !isLoading
                                       ? (v) => _dispatch(
                                           CreateAndEditBranchStateOrRegionChanged(
                                             v,
@@ -266,8 +272,8 @@ class _CreateAndEditBranchViewState extends State<_CreateAndEditBranchView> {
                                 RestockTextField(
                                   controller: _cityController,
                                   hint: 'CITY',
-                                  enabled: isActive,
-                                  onChanged: isActive
+                                  enabled: isActive && !isLoading,
+                                  onChanged: isActive && !isLoading
                                       ? (v) => _dispatch(
                                           CreateAndEditBranchCityChanged(v),
                                         )
@@ -278,8 +284,8 @@ class _CreateAndEditBranchViewState extends State<_CreateAndEditBranchView> {
                                 RestockTextField(
                                   controller: _countryController,
                                   hint: 'COUNTRY',
-                                  enabled: isActive,
-                                  onChanged: isActive
+                                  enabled: isActive && !isLoading,
+                                  onChanged: isActive && !isLoading
                                       ? (v) => _dispatch(
                                           CreateAndEditBranchCountryChanged(v),
                                         )
@@ -291,8 +297,8 @@ class _CreateAndEditBranchViewState extends State<_CreateAndEditBranchView> {
                                   controller: _descriptionController,
                                   hint: 'DESCRIPTION',
                                   maxLines: 3,
-                                  enabled: isActive,
-                                  onChanged: isActive
+                                  enabled: isActive && !isLoading,
+                                  onChanged: isActive && !isLoading
                                       ? (v) => _dispatch(
                                           CreateAndEditBranchDescriptionChanged(
                                             v,
@@ -343,11 +349,16 @@ class _CreateAndEditBranchViewState extends State<_CreateAndEditBranchView> {
                                 ],
 
                                 RestockButton(
-                                  text: widget.branch != null
+                                  text: isLoading
+                                      ? isEditing
+                                            ? 'Saving...'
+                                            : 'Creating...'
+                                      : isEditing
                                       ? 'Save Changes'
                                       : 'Save Branch',
-                                  enabled: isActive,
-                                  onPressed: isActive
+                                  isLoading: isLoading,
+                                  enabled: isActive && !isLoading,
+                                  onPressed: isActive && !isLoading
                                       ? () => _dispatch(
                                           const CreateAndEditBranchSubmitted(),
                                         )

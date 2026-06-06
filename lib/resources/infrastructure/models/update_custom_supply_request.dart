@@ -1,10 +1,9 @@
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 
-/// Request model for registering a custom supply.
-class RegisterCustomSupplyRequest {
-  const RegisterCustomSupplyRequest({
-    required this.accountId,
+/// Request model for updating a custom supply.
+class UpdateCustomSupplyRequest {
+  const UpdateCustomSupplyRequest({
     required this.supplyId,
     required this.name,
     required this.description,
@@ -17,7 +16,6 @@ class RegisterCustomSupplyRequest {
     this.picture,
   });
 
-  final String accountId;
   final String supplyId;
   final String name;
   final String description;
@@ -30,9 +28,8 @@ class RegisterCustomSupplyRequest {
   final XFile? picture;
 
   Future<http.MultipartRequest> toMultipartRequest(Uri uri) async {
-    final request = http.MultipartRequest('POST', uri);
+    final request = http.MultipartRequest('PATCH', uri);
 
-    request.fields['accountId'] = accountId;
     request.fields['supplyId'] = supplyId;
     request.fields['name'] = name;
     request.fields['description'] = description;

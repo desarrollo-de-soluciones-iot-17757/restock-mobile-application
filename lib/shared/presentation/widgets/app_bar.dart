@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:restock/shared/presentation/widgets/network_aware_image.dart';
+import 'package:restock/communications/presentation/notification_center/bloc/notification_center_event.dart';
+import 'package:restock/profiles/presentation/widgets/profile_avatar.dart';
 
 /// A custom AppBar widget for the Restock application, featuring a distinctive design and layout.
 ///
@@ -48,55 +49,12 @@ class RestockAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
       actions: [
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            IconButton(
-              icon: const Icon(
-                Icons.notifications_outlined,
-                color: Colors.white,
-                size: 26,
-              ),
-              onPressed: () {},
-            ),
-            Positioned(
-              top: 8,
-              right: 8,
-              child: Container(
-                width: 9,
-                height: 9,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFE24B4A),
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-          ],
-        ),
+        const NotificationButton(hasUnread: true),
         const SizedBox(width: 4),
-        Padding(
-          padding: const EdgeInsets.only(right: 20),
-          child: GestureDetector(
-            onTap: () {},
-            child: const CircleAvatar(
-              radius: 20,
-              backgroundColor: Color(0xFF2A3550),
-              child: ClipOval(
-                child: NetworkAwareImage(
-                  imageUrl:
-                      'https://pbs.twimg.com/profile_images/1481345033878085634/r4uZxGeb_400x400.jpg',
-                  width: 40,
-                  height: 40,
-                  placeholder: Icon(
-                    Icons.person_outline,
-                    color: Color(0xFF8899AA),
-                    size: 22,
-                  ),
-                ),
-              ),
-            ),
-          ),
+        const ProfileAvatar(
+          imageUrl: 'https://pbs.twimg.com/profile_images/1481345033878085634/r4uZxGeb_400x400.jpg',
         ),
+        const SizedBox(width: 20),
       ],
     );
   }

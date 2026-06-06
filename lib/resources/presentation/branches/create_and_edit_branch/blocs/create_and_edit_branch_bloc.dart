@@ -81,6 +81,7 @@ class CreateAndEditBranchBloc
     CreateAndEditBranchSubmitted event,
     Emitter<CreateAndEditBranchState> emit,
   ) async {
+    if (state.status == Status.loading) return;
     if (!state.isValid) return;
 
     emit(state.copyWith(status: Status.loading));
