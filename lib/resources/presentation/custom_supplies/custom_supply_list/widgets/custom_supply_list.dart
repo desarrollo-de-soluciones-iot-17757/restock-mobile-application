@@ -7,7 +7,6 @@ import 'package:restock/resources/presentation/custom_supplies/create_and_edit_c
 import 'package:restock/resources/presentation/custom_supplies/custom_supply_list/bloc/custom_supply_list_bloc.dart';
 import 'package:restock/resources/presentation/custom_supplies/custom_supply_list/bloc/custom_supply_list_event.dart';
 import 'package:restock/resources/presentation/custom_supplies/custom_supply_list/widgets/custom_supply_card.dart';
-import 'package:restock/resources/presentation/custom_supplies/custom_supply_list/widgets/dotted_add_card.dart';
 
 /// A widget that displays a list of custom supplies in a grid format, along with a search bar and an option to add new supplies.
 ///
@@ -48,7 +47,6 @@ class CustomSupplyListView extends StatelessWidget {
       child: Column(
         children: [
           const SizedBox(height: 16),
-          // Buscador
           TextField(
             decoration: InputDecoration(
               hintText: 'Search supply...',
@@ -92,7 +90,7 @@ class CustomSupplyListView extends StatelessWidget {
           const SizedBox(height: 20),
           Expanded(
             child: GridView.builder(
-              itemCount: customSupplies.length + 1,
+              itemCount: customSupplies.length,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 crossAxisSpacing: 14,
@@ -100,10 +98,6 @@ class CustomSupplyListView extends StatelessWidget {
                 childAspectRatio: 0.84,
               ),
               itemBuilder: (context, index) {
-                if (index == customSupplies.length) {
-                  return DottedAddCard(onTap: () => _openCreateSheet(context));
-                }
-
                 final supply = customSupplies[index];
                 return SupplyItemCard(supply: supply);
               },
