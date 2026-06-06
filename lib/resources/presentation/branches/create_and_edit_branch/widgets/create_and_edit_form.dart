@@ -153,9 +153,12 @@ class _CreateAndEditBranchViewState extends State<_CreateAndEditBranchView> {
             );
           }
         },
-        child: SizedBox(
-          height: MediaQuery.of(context).size.height * 0.65,
-          child: SafeArea(
+        child: DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.65,
+          minChildSize: 0.45,
+          maxChildSize: 0.95,
+          builder: (context, scrollController) => SafeArea(
             child: Column(
               children: [
                 const SizedBox(height: 12),
@@ -196,6 +199,7 @@ class _CreateAndEditBranchViewState extends State<_CreateAndEditBranchView> {
                 const SizedBox(height: 20),
                 Expanded(
                   child: SingleChildScrollView(
+                    controller: scrollController,
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child:
                         BlocBuilder<

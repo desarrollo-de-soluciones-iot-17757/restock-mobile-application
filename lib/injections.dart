@@ -8,18 +8,22 @@ import 'package:restock/iam/infrastructure/repositories/auth_repository_impl.dar
 import 'package:restock/iam/presentation/views/sign_in_form/bloc/sign_in_form_bloc.dart';
 import 'package:restock/resources/application/branch_facade_service.dart';
 import 'package:restock/resources/application/custom_supply_facade_service.dart';
+import 'package:restock/resources/application/supply_facade_service.dart';
 import 'package:restock/resources/domain/repositories/branch_repository.dart';
 import 'package:restock/resources/domain/repositories/custom_supply_repository.dart';
+import 'package:restock/resources/domain/repositories/supply_repository.dart';
 import 'package:restock/resources/infrastructure/data_sources/branch_local_data_provider.dart';
 import 'package:restock/resources/infrastructure/data_sources/branch_remote_data_provider.dart';
 import 'package:restock/resources/infrastructure/data_sources/custom_supply_remote_data_provider.dart';
+import 'package:restock/resources/infrastructure/data_sources/supply_remote_data_provider.dart';
 import 'package:restock/resources/infrastructure/repositories/branch_repository_impl.dart';
 import 'package:restock/resources/infrastructure/repositories/custom_supply_repository_impl.dart';
+import 'package:restock/resources/infrastructure/repositories/supply_repository_impl.dart';
 import 'package:restock/resources/presentation/branches/branch_detail/bloc/branch_detail_bloc.dart';
 import 'package:restock/resources/presentation/branches/branch_list/bloc/branch_list_bloc.dart';
 import 'package:restock/resources/presentation/branches/branch_status/bloc/branch_status_bloc.dart';
 import 'package:restock/resources/presentation/branches/create_and_edit_branch/blocs/create_and_edit_branch_bloc.dart';
-import 'package:restock/resources/presentation/custom_supplies/create_custom_supply/bloc/create_custom_supply_bloc.dart';
+import 'package:restock/resources/presentation/custom_supplies/create_and_edit_custom_supply/bloc/create_and_edit_custom_supply_bloc.dart';
 import 'package:restock/resources/presentation/custom_supplies/custom_supply_list/bloc/custom_supply_list_bloc.dart';
 import 'package:restock/shared/infrastructure/database/local_database.dart';
 import 'package:restock/shared/infrastructure/services/auth_status_notifier.dart';
@@ -125,6 +129,12 @@ Future<void> rmDependencies() async {
     ),
   );
 
+  serviceLocator.registerLazySingleton<SupplyFacadeService>(
+    () => SupplyFacadeService(
+      supplyRepository: serviceLocator<SupplyRepository>(),
+    ),
+  );
+
   // Branch
   serviceLocator.registerLazySingleton<BranchFacadeService>(
     () => BranchFacadeService(
@@ -145,6 +155,16 @@ Future<void> rmDependencies() async {
     () => CustomSupplyRepositoryImpl(
       customSupplyRemoteDataProvider:
           serviceLocator<CustomSupplyRemoteDataProvider>(),
+    ),
+  );
+
+  serviceLocator.registerLazySingleton<SupplyRemoteDataProvider>(
+    () => SupplyRemoteDataProvider(http: serviceLocator<AuthHttpClient>()),
+  );
+
+  serviceLocator.registerLazySingleton<SupplyRepository>(
+    () => SupplyRepositoryImpl(
+      supplyRemoteDataProvider: serviceLocator<SupplyRemoteDataProvider>(),
     ),
   );
 

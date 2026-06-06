@@ -36,8 +36,7 @@ class RegisterCustomSupplyRequest {
     request.fields['supplyId'] = supplyId;
     request.fields['name'] = name;
     request.fields['description'] = description;
-    request.fields['unitPriceAmount'] = unitPriceAmount;
-    request.fields['unitPriceCurrencyCode'] = unitPriceCurrencyCode;
+    request.fields['unitPrice'] = '$unitPriceAmount $unitPriceCurrencyCode';
     request.fields['minimumStock'] = minimumStock.toString();
     request.fields['maximumStock'] = maximumStock.toString();
     request.fields['unitMeasurement'] = unitMeasurement;

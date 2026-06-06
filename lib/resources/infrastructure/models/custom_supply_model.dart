@@ -1,42 +1,5 @@
 import 'package:restock/resources/domain/entities/custom_supply.dart';
-import 'package:restock/resources/domain/entities/supply.dart';
-
-/// Response model for the base supply nested in a custom supply response.
-class SupplyResponseModel {
-  const SupplyResponseModel({
-    required this.supplyId,
-    required this.name,
-    required this.description,
-    required this.category,
-    required this.isPerishable,
-  });
-
-  final String supplyId;
-  final String name;
-  final String description;
-  final String category;
-  final bool isPerishable;
-
-  factory SupplyResponseModel.fromJson(Map<String, dynamic> json) {
-    return SupplyResponseModel(
-      supplyId: _string(json['id']),
-      name: _string(json['name']),
-      description: _string(json['description']),
-      category: _string(json['category']),
-      isPerishable: _bool(json['isPerishable']),
-    );
-  }
-
-  Supply toDomain() {
-    return Supply(
-      supplyId: supplyId,
-      name: name,
-      description: description,
-      category: category,
-      isPerishable: isPerishable,
-    );
-  }
-}
+import 'package:restock/resources/infrastructure/models/supply_response_model.dart';
 
 /// Response model for `/api/v1/custom-supplies/{customSupplyId}`.
 class CustomSupplyResponseModel {
@@ -73,19 +36,28 @@ class CustomSupplyResponseModel {
   factory CustomSupplyResponseModel.fromJson(Map<String, dynamic> json) {
     final supplyJson = json['supply'];
 
+    String value(String key, {String fallback = ''}) {
+      return json[key]?.toString() ?? fallback;
+    }
+
+    double doubleValue(Object? value) {
+      if (value is num) return value.toDouble();
+      return double.tryParse(value?.toString() ?? '') ?? 0;
+    }
+
     return CustomSupplyResponseModel(
-      customSupplyId: _string(json['id']),
-      name: _string(json['name']),
-      description: _string(json['description']),
-      unitPriceAmount: _string(json['unitPriceAmount']),
-      unitPriceCurrencyCode: _string(json['unitPriceCurrencyCode']),
-      minimumStock: _double(json['minimumStock']),
-      maximumStock: _double(json['maximumStock']),
-      unitMeasurement: _string(json['unitMeasurement']),
-      unitMeasurementAbbreviation: _string(json['unitMeasurementAbbreviation']),
-      pictureUrl: _string(json['pictureUrl']),
-      picturePublicId: _string(json['picturePublicId']),
-      accountId: _string(json['accountId']),
+      customSupplyId: value('id'),
+      name: value('name'),
+      description: value('description'),
+      unitPriceAmount: value('unitPriceAmount'),
+      unitPriceCurrencyCode: value('unitPriceCurrencyCode'),
+      minimumStock: doubleValue(json['minimumStock']),
+      maximumStock: doubleValue(json['maximumStock']),
+      unitMeasurement: value('unitMeasurement'),
+      unitMeasurementAbbreviation: value('unitMeasurementAbbreviation'),
+      pictureUrl: value('pictureUrl'),
+      picturePublicId: value('picturePublicId'),
+      accountId: value('accountId'),
       supply: supplyJson is Map<String, dynamic>
           ? SupplyResponseModel.fromJson(supplyJson)
           : const SupplyResponseModel(
@@ -115,16 +87,4 @@ class CustomSupplyResponseModel {
       supply: supply.toDomain(),
     );
   }
-}
-
-String _string(Object? value) => value?.toString() ?? '';
-
-double _double(Object? value) {
-  if (value is num) return value.toDouble();
-  return double.tryParse(value?.toString() ?? '') ?? 0;
-}
-
-bool _bool(Object? value) {
-  if (value is bool) return value;
-  return value?.toString().toLowerCase() == 'true';
 }

@@ -31,4 +31,10 @@ class ApiConstants {
   static String branchById = 'branches/{branchId}';
 
   static String branchStatus = 'branches/{branchId}/status';
+
+  // Endpoints for supplies.
+
+  static final String supplies = 'supplies';
+
+  static final String suppliesCategories = 'supplies/categories';
 }
