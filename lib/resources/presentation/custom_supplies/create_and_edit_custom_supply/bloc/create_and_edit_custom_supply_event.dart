@@ -1,4 +1,5 @@
 import 'package:image_picker/image_picker.dart';
+import 'package:restock/resources/domain/entities/supply.dart';
 
 abstract class CreateCustomSupplyEvent {
   const CreateCustomSupplyEvent();
@@ -7,6 +8,11 @@ abstract class CreateCustomSupplyEvent {
 class CreateCustomSupplyNameChanged extends CreateCustomSupplyEvent {
   const CreateCustomSupplyNameChanged(this.name);
   final String name;
+}
+
+class CreateCustomSupplySupplyChanged extends CreateCustomSupplyEvent {
+  const CreateCustomSupplySupplyChanged(this.supply);
+  final Supply supply;
 }
 
 class CreateCustomSupplyMinimumStockChanged extends CreateCustomSupplyEvent {

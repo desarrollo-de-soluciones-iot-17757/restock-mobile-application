@@ -1,5 +1,6 @@
 import 'package:restock/resources/domain/entities/custom_supply.dart';
 import 'package:restock/resources/domain/entities/register_custom_supply_command.dart';
+import 'package:restock/resources/domain/entities/update_custom_supply_command.dart';
 
 /// Repository interface for fetching custom supplies based on branch ID.
 abstract class CustomSupplyRepository {
@@ -12,4 +13,7 @@ abstract class CustomSupplyRepository {
   Future<CustomSupply> registerCustomSupply(
     RegisterCustomSupplyCommand command,
   );
+
+  /// Updates a custom supply.
+  Future<CustomSupply> updateCustomSupply(UpdateCustomSupplyCommand command);
 }

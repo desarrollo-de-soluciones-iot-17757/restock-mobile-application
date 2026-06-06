@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:restock/resources/presentation/custom_supplies/create_custom_supply/bloc/create_custom_supply_bloc.dart';
-import 'package:restock/resources/presentation/custom_supplies/create_custom_supply/bloc/create_custom_supply_event.dart';
-import 'package:restock/resources/presentation/custom_supplies/create_custom_supply/bloc/create_custom_supply_state.dart';
+import 'package:restock/resources/presentation/custom_supplies/create_and_edit_custom_supply/bloc/create_and_edit_custom_supply_bloc.dart';
+import 'package:restock/resources/presentation/custom_supplies/create_and_edit_custom_supply/bloc/create_and_edit_custom_supply_event.dart';
+import 'package:restock/resources/presentation/custom_supplies/create_and_edit_custom_supply/bloc/create_and_edit_custom_supply_state.dart';
+import 'package:restock/shared/presentation/widgets/select_field.dart';
+import 'package:restock/resources/presentation/supplies/supply_list/widgets/supply_selector_field.dart';
 import 'package:restock/shared/presentation/utils/enums/bloc_status.dart';
 import 'package:restock/shared/presentation/widgets/image_picker_field.dart';
 import 'package:restock/shared/presentation/widgets/restok_button.dart';
@@ -34,6 +36,18 @@ class _CreateCustomSupplyFormState extends State<CreateCustomSupplyForm> {
       context.read<CreateCustomSupplyBloc>().add(event);
 
   @override
+  void initState() {
+    super.initState();
+
+    final state = context.read<CreateCustomSupplyBloc>().state;
+    _nameController.text = state.name;
+    _minimumController.text = state.minimumStock;
+    _maximumController.text = state.maximumStock;
+    _priceController.text = state.unitPrice;
+    _descriptionController.text = state.description;
+  }
+
+  @override
   void dispose() {
     _nameController.dispose();
     _minimumController.dispose();
@@ -60,9 +74,12 @@ class _CreateCustomSupplyFormState extends State<CreateCustomSupplyForm> {
           );
         }
       },
-      child: SizedBox(
-        height: MediaQuery.of(context).size.height * 0.82,
-        child: SafeArea(
+      child: DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.65,
+        minChildSize: 0.45,
+        maxChildSize: 0.95,
+        builder: (context, scrollController) => SafeArea(
           child: Column(
             children: [
               const SizedBox(height: 12),
@@ -75,23 +92,34 @@ class _CreateCustomSupplyFormState extends State<CreateCustomSupplyForm> {
                 ),
               ),
               const SizedBox(height: 20),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Align(
                   alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Create Custom Supply',
-                    style: TextStyle(
-                      color: Color(0xFF0D1B2A),
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
+                  child:
+                      BlocBuilder<
+                        CreateCustomSupplyBloc,
+                        CreateCustomSupplyState
+                      >(
+                        buildWhen: (prev, curr) =>
+                            prev.isEditing != curr.isEditing,
+                        builder: (context, state) => Text(
+                          state.isEditing
+                              ? 'Edit Custom Supply'
+                              : 'New Custom Supply',
+                          style: const TextStyle(
+                            color: Color(0xFF0D1B2A),
+                            fontSize: 22,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
                 ),
               ),
               const SizedBox(height: 20),
               Expanded(
                 child: SingleChildScrollView(
+                  controller: scrollController,
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child:
                       BlocBuilder<
@@ -105,6 +133,7 @@ class _CreateCustomSupplyFormState extends State<CreateCustomSupplyForm> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               ImagePickerField(
+                                imageUrl: state.pictureUrl,
                                 enabled: !isLoading,
                                 onImagePicked: (image) => _dispatch(
                                   CreateCustomSupplyImageChanged(image),
@@ -120,6 +149,21 @@ class _CreateCustomSupplyFormState extends State<CreateCustomSupplyForm> {
                                 ),
                               ),
                               const SizedBox(height: 10),
+
+                              SupplySelectorField(
+                                label: 'SELECT SUPPLY',
+                                value: state.supply,
+                                enabled: !isLoading,
+                                onChanged: (supply) {
+                                  if (supply == null) return;
+                                  _dispatch(
+                                    CreateCustomSupplySupplyChanged(supply),
+                                  );
+                                },
+                              ),
+
+                              const SizedBox(height: 10),
+
                               Row(
                                 children: [
                                   Expanded(
@@ -169,11 +213,12 @@ class _CreateCustomSupplyFormState extends State<CreateCustomSupplyForm> {
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(
-                                    child: _SelectField(
+                                    child: SelectField(
                                       label: 'CURRENCY',
                                       value: state.currency,
                                       enabled: !isLoading,
-                                      items: const ['PEN', 'USD'],
+                                      icon: Icons.payments_outlined,
+                                      items: const ['PEN', 'USD', 'EUR'],
                                       onChanged: (value) {
                                         if (value == null) return;
                                         _dispatch(
@@ -187,10 +232,11 @@ class _CreateCustomSupplyFormState extends State<CreateCustomSupplyForm> {
                                 ],
                               ),
                               const SizedBox(height: 10),
-                              _SelectField(
+                              SelectField(
                                 label: 'UNIT OF MEASURE',
                                 value: state.unit,
                                 enabled: !isLoading,
+                                icon: Icons.straighten_outlined,
                                 items: _unitOptions.keys.toList(),
                                 itemLabel: (value) => _unitOptions[value]!,
                                 onChanged: (value) {
@@ -212,9 +258,15 @@ class _CreateCustomSupplyFormState extends State<CreateCustomSupplyForm> {
                               ),
                               const SizedBox(height: 24),
                               RestockButton(
-                                text: 'Create Supply',
+                                text: isLoading
+                                    ? state.isEditing
+                                          ? 'Saving...'
+                                          : 'Creating...'
+                                    : state.isEditing
+                                    ? 'Save Changes'
+                                    : 'Create Supply',
                                 isLoading: isLoading,
-                                enabled: state.isValid,
+                                enabled: state.isValid && !isLoading,
                                 onPressed: () => _dispatch(
                                   const CreateCustomSupplySubmitted(),
                                 ),
@@ -230,60 +282,6 @@ class _CreateCustomSupplyFormState extends State<CreateCustomSupplyForm> {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _SelectField extends StatelessWidget {
-  const _SelectField({
-    required this.label,
-    required this.value,
-    required this.items,
-    required this.onChanged,
-    this.itemLabel,
-    this.enabled = true,
-  });
-
-  final String label;
-  final String? value;
-  final List<String> items;
-  final ValueChanged<String?> onChanged;
-  final String Function(String value)? itemLabel;
-  final bool enabled;
-
-  @override
-  Widget build(BuildContext context) {
-    return DropdownButtonFormField<String>(
-      initialValue: value,
-      onChanged: enabled ? onChanged : null,
-      decoration: InputDecoration(
-        hintText: label,
-        hintStyle: const TextStyle(
-          color: Color(0xFF9AA5B4),
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 1.0,
-        ),
-        filled: true,
-        fillColor: enabled ? Colors.white : const Color(0xFFF0F0F0),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFFDDE1E7), width: 1.2),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFF2D6A4F), width: 1.5),
-        ),
-      ),
-      items: items
-          .map(
-            (item) => DropdownMenuItem<String>(
-              value: item,
-              child: Text(itemLabel?.call(item) ?? item),
-            ),
-          )
-          .toList(),
     );
   }
 }

@@ -1,8 +1,10 @@
 import 'package:restock/resources/domain/entities/custom_supply.dart';
 import 'package:restock/resources/domain/entities/register_custom_supply_command.dart';
+import 'package:restock/resources/domain/entities/update_custom_supply_command.dart';
 import 'package:restock/resources/domain/repositories/custom_supply_repository.dart';
 import 'package:restock/resources/infrastructure/data_sources/custom_supply_remote_data_provider.dart';
 import 'package:restock/resources/infrastructure/models/register_custom_supply_request.dart';
+import 'package:restock/resources/infrastructure/models/update_custom_supply_request.dart';
 
 /// Implementation of the CustomSupplyRepository that interacts with the CustomSupplyRemoteDataProvider
 class CustomSupplyRepositoryImpl implements CustomSupplyRepository {
@@ -50,6 +52,34 @@ class CustomSupplyRepositoryImpl implements CustomSupplyRepository {
       return response.toDomain();
     } catch (e) {
       throw Exception('Failed to register custom supply: $e');
+    }
+  }
+
+  @override
+  Future<CustomSupply> updateCustomSupply(
+    UpdateCustomSupplyCommand command,
+  ) async {
+    try {
+      final request = UpdateCustomSupplyRequest(
+        supplyId: command.supplyId,
+        name: command.name,
+        description: command.description,
+        unitPriceAmount: command.unitPriceAmount,
+        unitPriceCurrencyCode: command.unitPriceCurrencyCode,
+        minimumStock: command.minimumStock,
+        maximumStock: command.maximumStock,
+        unitMeasurement: command.unitMeasurement,
+        unitMeasurementAbbreviation: command.unitMeasurementAbbreviation,
+        picture: command.picture,
+      );
+
+      final response = await customSupplyRemoteDataProvider.updateCustomSupply(
+        request,
+        command.customSupplyId,
+      );
+      return response.toDomain();
+    } catch (e) {
+      throw Exception('Failed to update custom supply: $e');
     }
   }
 }
