@@ -8,11 +8,9 @@ import 'firebase_options.dart';
 /// The main function is the entry point of the application. It initializes the dependency injection and runs the app.
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await di.setupDependencies();  
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await di.setupDependencies();
   await di.serviceLocator<AuthStatusNotifier>().initialize();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
   runApp(const RestockApp());
 }
 
