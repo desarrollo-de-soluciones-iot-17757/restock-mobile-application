@@ -4,14 +4,17 @@ See the official documentation for more details: https://firebase.google.com/doc
 
 ### Step 1: Install Firebase CLI
 
-![step-1](https://i.imgur.com/ZZ1JE6r.png)
+Follow this command to access to Firebase with CLI:
+
+```
+firebase login
+```
 
 Go to this Url to install the Firebase CLI: https://firebase.google.com/docs/cli?hl=es-419&authuser=0&_gl=1*1q8lmcf*_ga*NzkwNTUyMzQ2LjE3NzQ4NTMyODM.*_ga_CW55HF8NVT*czE3ODA3OTA4MjUkbzI0JGcxJHQxNzgwNzkxMjA3JGo2MCRsMCRoMA..#install_the_firebase_cli
 
-
 ### Step 2: Install and execute the FlutterFire CLI
 
-Only the first command to add the FlutterFire CLI to your system, the second command is to execute the configuration of the Firebase project in your Flutter project **(I already did it, so you can skip the second command if you want).**
+Only the first command to add the FlutterFire CLI to your system, the second command is to execute the configuration of the Firebase project in your Flutter project.
 
 follow this command to install the FlutterFire CLI:
 
@@ -19,20 +22,20 @@ follow this command to install the FlutterFire CLI:
 dart pub global activate flutterfire_cli
 ```
 
-![step-2](https://i.imgur.com/lELaBMG.png)
+Select the UITopic Project
 
-### Step 3: Access to Firebase with CLI
+![step-2](https://i.imgur.com/fpGUFdy.png)
 
-Follow this command to access to Firebase with CLI:
+Select the platforms you want to configure (Android and iOS in this case)
 
 ```
-firebase login
+flutterfire configure --project=uitopic-1406c
 ```
 
-![step-3](https://i.imgur.com/TPWxqDu.png)
+![step-2](https://i.imgur.com/wbG81nn.png)
 
 
-### Step 4: Configure the apps to use Firebase
+### Step 3: Configure the apps to use Firebase
 
 Follow this command:
 
@@ -40,10 +43,4 @@ Follow this command:
 flutterfire configure
 ```
 
-This command generates the `firebase_options.dart` file in the `lib` folder, which contains all the necessary configuration for the Firebase services to work in your Flutter project.
-
-In addition, the FlutterFire CLI automatically configures the platform-specific Firebase files, such as:
-- google-services.json for Android
-- GoogleService-Info.plist for iOS
-
-![step-4](https://i.imgur.com/K5Ipjc2.png)
+![step-4](https://i.imgur.com/ULjQPd8.png)
