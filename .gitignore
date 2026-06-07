@@ -43,3 +43,13 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Firebase native app config generated locally or from CI secrets
+/android/app/google-services.json
+/ios/Runner/GoogleService-Info.plist
+
+# Firebase service accounts and signing credentials
+firebase-service-account.json
+*.jks
+*.p12
+*.mobileprovision
