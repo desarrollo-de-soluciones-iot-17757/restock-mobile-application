@@ -55,6 +55,29 @@ class CustomSupplyRepositoryImpl implements CustomSupplyRepository {
     }
   }
 
+  @override
+  Future<CustomSupply> getCustomSupplyById(String customSupplyId) async {
+    try {
+      final response = await customSupplyRemoteDataProvider.getCustomSupplyById(
+        customSupplyId,
+      );
+      final customSupply = response.toDomain();
+
+      await _tryCacheCustomSupplies([customSupply]);
+
+      return customSupply;
+    } catch (e) {
+      final localCustomSupply = await customSupplyLocalDataProvider
+          .getCustomSupplyById(customSupplyId);
+
+      if (localCustomSupply == null) {
+        throw Exception('Failed to fetch custom supply: $e');
+      }
+
+      return localCustomSupply.toDomain();
+    }
+  }
+
   Future<void> _tryCacheSupplyCatalog() async {
     try {
       final suppliesResponse = await supplyRemoteDataProvider.getSupplies();

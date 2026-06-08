@@ -9,6 +9,8 @@ abstract class CustomSupplyRepository {
   /// Returns a [Future] that resolves to a list of [CustomSupply] objects.
   Future<List<CustomSupply>> getCustomSuppliesByBranchId();
 
+  Future<CustomSupply> getCustomSupplyById(String customSupplyId);
+
   /// Registers a custom supply.
   Future<CustomSupply> registerCustomSupply(
     RegisterCustomSupplyCommand command,

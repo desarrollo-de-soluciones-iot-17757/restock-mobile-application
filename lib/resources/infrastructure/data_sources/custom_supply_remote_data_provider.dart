@@ -47,6 +47,26 @@ class CustomSupplyRemoteDataProvider {
     }
   }
 
+  Future<CustomSupplyResponseModel> getCustomSupplyById(
+    String customSupplyId,
+  ) async {
+    try {
+      final uri = Uri.parse(
+        '${ApiConstants.baseUrl}${ResourcesApiConstants.customSupplyById.replaceAll('{customSupplyId}', customSupplyId)}',
+      );
+
+      final response = await http.get(uri);
+
+      if (response.statusCode == HttpStatus.ok) {
+        return CustomSupplyResponseModel.fromJson(jsonDecode(response.body));
+      }
+
+      throw Exception('Failed to load custom supply: ${response.statusCode}');
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<CustomSupplyResponseModel> registerCustomSupply(
     RegisterCustomSupplyRequest request,
   ) async {
