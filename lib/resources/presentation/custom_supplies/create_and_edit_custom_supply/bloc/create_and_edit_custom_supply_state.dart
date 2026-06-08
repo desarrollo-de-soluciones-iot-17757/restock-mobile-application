@@ -62,7 +62,18 @@ class CreateCustomSupplyState {
   String? get minimumStockError {
     if (!submitted) return null;
     if (minimumStock.trim().isEmpty) return 'Minimum stock is required';
-    if (int.tryParse(minimumStock) == null) return 'Enter a whole number';
+    final minimum = int.tryParse(minimumStock);
+    if (minimum == null) return 'Enter a whole number';
+
+    final maximum = int.tryParse(maximumStock);
+    if (maximum != null && minimum == maximum) {
+      return 'Minimum and maximum cannot be equal';
+    }
+
+    if (maximum != null && minimum > maximum) {
+      return 'Minimum cannot be greater than maximum';
+    }
+
     return null;
   }
 
@@ -73,6 +84,10 @@ class CreateCustomSupplyState {
     if (maximum == null) return 'Enter a whole number';
 
     final minimum = int.tryParse(minimumStock);
+    if (minimum != null && maximum == minimum) {
+      return 'Maximum and minimum cannot be equal';
+    }
+
     if (minimum != null && maximum < minimum) {
       return 'Maximum must be greater than minimum';
     }

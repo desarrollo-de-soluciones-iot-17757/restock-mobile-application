@@ -1,6 +1,5 @@
 import 'package:restock/resources/domain/entities/custom_supply.dart';
-import 'package:restock/resources/domain/entities/register_custom_supply_command.dart';
-import 'package:restock/resources/domain/entities/update_custom_supply_command.dart';
+import 'package:restock/resources/domain/commands/register_custom_supply_command.dart';
 import 'package:restock/resources/domain/repositories/custom_supply_repository.dart';
 import 'package:restock/resources/infrastructure/data_sources/custom_supply_local_data_provider.dart';
 import 'package:restock/resources/infrastructure/data_sources/custom_supply_remote_data_provider.dart';
@@ -10,6 +9,8 @@ import 'package:restock/resources/infrastructure/models/custom_supply_entity.dar
 import 'package:restock/resources/infrastructure/models/register_custom_supply_request.dart';
 import 'package:restock/resources/infrastructure/models/supply_entity.dart';
 import 'package:restock/resources/infrastructure/models/update_custom_supply_request.dart';
+
+import '../../domain/commands/update_custom_supply_command.dart';
 
 /// Implementation of the CustomSupplyRepository that interacts with the CustomSupplyRemoteDataProvider
 class CustomSupplyRepositoryImpl implements CustomSupplyRepository {

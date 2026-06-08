@@ -2,13 +2,13 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:restock/devices/application/device_facade_service.dart';
 import 'package:restock/devices/application/device_threshold_facade_service.dart';
-import 'package:restock/devices/domain/repositories/batch_repository.dart';
+import 'package:restock/resources/domain/repositories/batch_repository.dart';
 import 'package:restock/devices/domain/repositories/device_repository.dart';
 import 'package:restock/devices/domain/repositories/device_threshold_repository.dart';
-import 'package:restock/devices/infrastructure/data_sources/batch_remote_data_provider.dart';
+import 'package:restock/resources/infrastructure/data_sources/batch_remote_data_provider.dart';
 import 'package:restock/devices/infrastructure/data_sources/device_remote_data_provider.dart';
 import 'package:restock/devices/infrastructure/data_sources/device_threshold_remote_data_provider.dart';
-import 'package:restock/devices/infrastructure/repositories/batch_repository_impl.dart';
+import 'package:restock/resources/infrastructure/repositories/batch_repository_impl.dart';
 import 'package:restock/devices/infrastructure/repositories/device_repository_impl.dart';
 import 'package:restock/devices/infrastructure/repositories/device_threshold_repository_impl.dart';
 import 'package:restock/devices/presentation/views/device_detail/bloc/device_detail_bloc.dart';
@@ -19,6 +19,7 @@ import 'package:restock/iam/infrastructure/data_sources/auth_remote_data_provide
 import 'package:restock/iam/infrastructure/interceptor/auth_http_client.dart';
 import 'package:restock/iam/infrastructure/repositories/auth_repository_impl.dart';
 import 'package:restock/iam/presentation/views/sign_in_form/bloc/sign_in_form_bloc.dart';
+import 'package:restock/resources/application/batch_facade_service.dart';
 import 'package:restock/resources/application/branch_facade_service.dart';
 import 'package:restock/resources/application/custom_supply_facade_service.dart';
 import 'package:restock/resources/application/supply_facade_service.dart';
@@ -38,6 +39,8 @@ import 'package:restock/resources/presentation/branches/branch_detail/bloc/branc
 import 'package:restock/resources/presentation/branches/branch_list/bloc/branch_list_bloc.dart';
 import 'package:restock/resources/presentation/branches/branch_status/bloc/branch_status_bloc.dart';
 import 'package:restock/resources/presentation/branches/create_and_edit_branch/blocs/create_and_edit_branch_bloc.dart';
+import 'package:restock/resources/presentation/batches/batch_list/bloc/batch_list_bloc.dart';
+import 'package:restock/resources/presentation/batches/register_batch/bloc/register_batch_bloc.dart';
 import 'package:restock/resources/presentation/custom_supplies/create_and_edit_custom_supply/bloc/create_and_edit_custom_supply_bloc.dart';
 import 'package:restock/resources/presentation/custom_supplies/custom_supply_list/bloc/custom_supply_list_bloc.dart';
 import 'package:restock/shared/infrastructure/database/local_database.dart';
@@ -216,6 +219,24 @@ Future<void> rmDependencies() async {
     ),
   );
 
+  serviceLocator.registerLazySingleton<BatchRemoteDataProvider>(
+    () => BatchRemoteDataProvider(http: serviceLocator<AuthHttpClient>()),
+  );
+
+  serviceLocator.registerLazySingleton<BatchRepository>(
+    () => BatchRepositoryImpl(
+      remoteDataProvider: serviceLocator<BatchRemoteDataProvider>(),
+    ),
+  );
+
+  serviceLocator.registerLazySingleton<BatchFacadeService>(
+    () => BatchFacadeService(
+      batchRepository: serviceLocator<BatchRepository>(),
+      branchFacadeService: serviceLocator<BranchFacadeService>(),
+      tokenStorage: serviceLocator<TokenStorage>(),
+    ),
+  );
+
   /// Presentation layer
 
   /// Custom Supply List Bloc
@@ -255,6 +276,18 @@ Future<void> rmDependencies() async {
       branchFacadeService: serviceLocator<BranchFacadeService>(),
     ),
   );
+
+  serviceLocator.registerFactory<BatchListBloc>(
+    () =>
+        BatchListBloc(batchFacadeService: serviceLocator<BatchFacadeService>()),
+  );
+
+  serviceLocator.registerFactory<RegisterBatchBloc>(
+    () => RegisterBatchBloc(
+      batchFacadeService: serviceLocator<BatchFacadeService>(),
+      customSupplyFacadeService: serviceLocator<CustomSupplyFacadeService>(),
+    ),
+  );
 }
 
 /// Configures the dependencies for the Communications context.
@@ -284,15 +317,6 @@ Future<void> devicesDependencies() async {
   serviceLocator.registerLazySingleton<DeviceRepository>(
     () => DeviceRepositoryImpl(
       deviceRemoteDataProvider: serviceLocator<DeviceRemoteDataProvider>(),
-    ),
-  );
-
-  serviceLocator.registerLazySingleton<BatchRemoteDataProvider>(
-    () => BatchRemoteDataProvider(http: serviceLocator<AuthHttpClient>()),
-  );
-  serviceLocator.registerLazySingleton<BatchRepository>(
-    () => BatchRepositoryImpl(
-      remoteDataProvider: serviceLocator<BatchRemoteDataProvider>(),
     ),
   );
 

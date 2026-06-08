@@ -22,7 +22,7 @@ class SupplyItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () =>
-          context.push('/inventory/${supply.customSupplyId}', extra: supply),
+          context.push('/supplies/${supply.customSupplyId}', extra: supply),
       onLongPress: () => _openEditSheet(context),
       child: Card(
         color: Colors.white,
