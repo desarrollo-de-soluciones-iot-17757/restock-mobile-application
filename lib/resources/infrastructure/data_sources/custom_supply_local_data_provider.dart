@@ -1,5 +1,5 @@
 import 'package:restock/resources/infrastructure/models/custom_supply_entity.dart';
-import 'package:restock/shared/infrastructure/constants/database_constants.dart';
+import 'package:restock/resources/infrastructure/repositories/constants/resource_database_constants.dart';
 import 'package:restock/shared/infrastructure/database/local_database.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -11,50 +11,35 @@ class CustomSupplyLocalDataProvider {
   Future<List<CustomSupplyEntity>> getCustomSupplies() async {
     final db = await appDatabase.database;
 
-    final result = await db.rawQuery(_customSupplyJoinQuery());
+    final customSuppliesTable = ResourceDatabaseConstants.customSuppliesTable;
+    final suppliesTable = ResourceDatabaseConstants.suppliesTable;
 
-    return result.map(CustomSupplyEntity.fromMap).toList();
-  }
-
-  Future<CustomSupplyEntity?> getCustomSupplyById(String customSupplyId) async {
-    final db = await appDatabase.database;
-    final result = await db.rawQuery(
-      '${_customSupplyJoinQuery()} WHERE cs.${DatabaseConstants.customSupplyId} = ?',
-      [customSupplyId],
-    );
-
-    if (result.isEmpty) return null;
-    return CustomSupplyEntity.fromMap(result.first);
-  }
-
-  String _customSupplyJoinQuery() {
-    final customSuppliesTable = DatabaseConstants.customSuppliesTable;
-    final suppliesTable = DatabaseConstants.suppliesTable;
-
-    return '''
+    final result = await db.rawQuery('''
       SELECT
-        cs.${DatabaseConstants.customSupplyId},
-        cs.${DatabaseConstants.customSupplyName},
-        cs.${DatabaseConstants.customSupplyAccountId},
-        cs.${DatabaseConstants.customSupplyDescription},
-        cs.${DatabaseConstants.customSupplyUnitPriceAmount},
-        cs.${DatabaseConstants.customSupplyUnitPriceCurrencyCode},
-        cs.${DatabaseConstants.customSupplyMinimumStock},
-        cs.${DatabaseConstants.customSupplyMaximumStock},
-        cs.${DatabaseConstants.customSupplyUnitMeasurement},
-        cs.${DatabaseConstants.customSupplyUnitMeasurementAbbreviation},
-        cs.${DatabaseConstants.customSupplyPictureUrl},
-        cs.${DatabaseConstants.customSupplyPicturePublicId},
-        s.${DatabaseConstants.supplyId} AS supply_id,
-        s.${DatabaseConstants.supplyName} AS supply_name,
-        s.${DatabaseConstants.supplyDescription} AS supply_description,
-        s.${DatabaseConstants.supplyCategory} AS supply_category,
-        s.${DatabaseConstants.supplyIsPerishable} AS supply_is_perishable
+        cs.${ResourceDatabaseConstants.customSupplyId},
+        cs.${ResourceDatabaseConstants.customSupplyName},
+        cs.${ResourceDatabaseConstants.customSupplyAccountId},
+        cs.${ResourceDatabaseConstants.customSupplyDescription},
+        cs.${ResourceDatabaseConstants.customSupplyUnitPriceAmount},
+        cs.${ResourceDatabaseConstants.customSupplyUnitPriceCurrencyCode},
+        cs.${ResourceDatabaseConstants.customSupplyMinimumStock},
+        cs.${ResourceDatabaseConstants.customSupplyMaximumStock},
+        cs.${ResourceDatabaseConstants.customSupplyUnitMeasurement},
+        cs.${ResourceDatabaseConstants.customSupplyUnitMeasurementAbbreviation},
+        cs.${ResourceDatabaseConstants.customSupplyPictureUrl},
+        cs.${ResourceDatabaseConstants.customSupplyPicturePublicId},
+        s.${ResourceDatabaseConstants.supplyId} AS supply_id,
+        s.${ResourceDatabaseConstants.supplyName} AS supply_name,
+        s.${ResourceDatabaseConstants.supplyDescription} AS supply_description,
+        s.${ResourceDatabaseConstants.supplyCategory} AS supply_category,
+        s.${ResourceDatabaseConstants.supplyIsPerishable} AS supply_is_perishable
       FROM $customSuppliesTable AS cs
       INNER JOIN $suppliesTable AS s
-        ON cs.${DatabaseConstants.customSupplySupplyId}
-          = s.${DatabaseConstants.supplyId}
-    ''';
+        ON cs.${ResourceDatabaseConstants.customSupplySupplyId}
+          = s.${ResourceDatabaseConstants.supplyId}
+    ''');
+
+    return result.map(CustomSupplyEntity.fromMap).toList();
   }
 
   Future<void> saveCustomSupplies(
@@ -65,12 +50,12 @@ class CustomSupplyLocalDataProvider {
 
     for (final customSupply in customSupplies) {
       batch.insert(
-        DatabaseConstants.suppliesTable,
+        ResourceDatabaseConstants.suppliesTable,
         _supplyToMap(customSupply),
         conflictAlgorithm: ConflictAlgorithm.ignore,
       );
       batch.insert(
-        DatabaseConstants.customSuppliesTable,
+        ResourceDatabaseConstants.customSuppliesTable,
         customSupply.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
@@ -84,12 +69,12 @@ class CustomSupplyLocalDataProvider {
     final batch = db.batch();
 
     batch.insert(
-      DatabaseConstants.suppliesTable,
+      ResourceDatabaseConstants.suppliesTable,
       _supplyToMap(customSupply),
       conflictAlgorithm: ConflictAlgorithm.ignore,
     );
     batch.insert(
-      DatabaseConstants.customSuppliesTable,
+      ResourceDatabaseConstants.customSuppliesTable,
       customSupply.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
@@ -99,19 +84,19 @@ class CustomSupplyLocalDataProvider {
 
   Future<void> clearCustomSupplies() async {
     final db = await appDatabase.database;
-    await db.delete(DatabaseConstants.customSuppliesTable);
+    await db.delete(ResourceDatabaseConstants.customSuppliesTable);
   }
 
   Map<String, dynamic> _supplyToMap(CustomSupplyEntity customSupply) {
     final supply = customSupply.supply;
 
     return {
-      DatabaseConstants.supplyId: supply.supplyId,
-      DatabaseConstants.supplyName: supply.name,
-      DatabaseConstants.supplyDescription: supply.description,
-      DatabaseConstants.supplyCategory: supply.category,
-      DatabaseConstants.supplyIsPerishable: supply.isPerishable ? 1 : 0,
-      DatabaseConstants.supplyIsCatalog: 0,
+      ResourceDatabaseConstants.supplyId: supply.supplyId,
+      ResourceDatabaseConstants.supplyName: supply.name,
+      ResourceDatabaseConstants.supplyDescription: supply.description,
+      ResourceDatabaseConstants.supplyCategory: supply.category,
+      ResourceDatabaseConstants.supplyIsPerishable: supply.isPerishable ? 1 : 0,
+      ResourceDatabaseConstants.supplyIsCatalog: 0,
     };
   }
 }
