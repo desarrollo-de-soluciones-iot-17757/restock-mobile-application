@@ -6,5 +6,6 @@ const green = Color(0xFF4ECCA3);
 const red = Color(0xFFE24B4A);
 const textPrimary = Color(0xFFEEF2F7);
 const textSecondary = Color(0xFF8899AA);
+const textTertiary = Color(0xFF1E2D40);
 const border = Color(0xFF1E2D40);
 
