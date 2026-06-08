@@ -15,7 +15,9 @@ import 'package:restock/profiles/presentation/profile/profile_page.dart';
 import 'package:restock/resources/application/branch_facade_service.dart';
 import 'package:restock/resources/application/custom_supply_facade_service.dart';
 import 'package:restock/resources/domain/entities/branch.dart';
+import 'package:restock/resources/domain/entities/batch.dart';
 import 'package:restock/resources/domain/entities/custom_supply.dart';
+import 'package:restock/resources/presentation/batches/batch_detail/widgets/batch_detail_screen.dart';
 import 'package:restock/resources/presentation/batches/batch_list/bloc/batch_list_bloc.dart';
 import 'package:restock/resources/presentation/batches/batch_list/bloc/batch_list_event.dart';
 import 'package:restock/resources/presentation/batches/pages/batches_page.dart';
@@ -116,6 +118,29 @@ GoRouter buildRouter(AuthStatusNotifier authNotifier) => GoRouter(
                       ..add(const BatchListStarted()),
                 child: const BatchesPage(),
               ),
+              routes: [
+                GoRoute(
+                  path: ':batchId',
+                  builder: (context, state) {
+                    final batch = state.extra;
+
+                    return BatchDetailScreen(
+                      batch: batch is Batch
+                          ? batch
+                          : const Batch(
+                              id: '',
+                              code: '',
+                              currentStock: 0,
+                              unitMeasurement: '',
+                              unitMeasurementAbbreviation: '',
+                              customSupplyId: '',
+                              branchId: '',
+                              accountId: '',
+                            ),
+                    );
+                  },
+                ),
+              ],
             ),
           ],
         ),

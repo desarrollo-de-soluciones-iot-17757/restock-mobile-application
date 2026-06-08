@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:restock/injections.dart';
 import 'package:restock/resources/presentation/batches/batch_list/bloc/batch_list_bloc.dart';
 import 'package:restock/resources/presentation/batches/batch_list/bloc/batch_list_event.dart';
@@ -80,6 +81,7 @@ class BatchesPage extends StatelessWidget {
                       const SizedBox(height: 18),
                       BatchActionBar(
                         onAddBatch: () => _openRegisterBatchSheet(context),
+                        onCustomSupplies: () => context.go('/supplies')
                       ),
                       const SizedBox(height: 18),
                       BatchOverviewMetrics(

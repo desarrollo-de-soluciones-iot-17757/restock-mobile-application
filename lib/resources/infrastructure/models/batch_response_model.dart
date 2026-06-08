@@ -14,6 +14,7 @@ class BatchResponseModel {
     this.customSupplyName,
     this.minimumStock,
     this.maximumStock,
+    this.pictureUrl,
     this.expirationDate,
     this.entryDate,
   });
@@ -29,6 +30,7 @@ class BatchResponseModel {
   final String? customSupplyName;
   final double? minimumStock;
   final double? maximumStock;
+  final String? pictureUrl;
   final DateTime? expirationDate;
   final DateTime? entryDate;
 
@@ -100,6 +102,10 @@ class BatchResponseModel {
           : stockRange == null
           ? null
           : doubleValue(stockRange['maximumStock']),
+      pictureUrl: value(
+        'pictureUrl',
+        fallback: nestedValue(customSupply, 'pictureUrl'),
+      ),
       expirationDate: dateValue('expirationDate'),
       entryDate: dateValue('entryDate'),
     );
@@ -118,6 +124,7 @@ class BatchResponseModel {
       customSupplyName: customSupplyName,
       minimumStock: minimumStock,
       maximumStock: maximumStock,
+      pictureUrl: pictureUrl,
       expirationDate: expirationDate,
       entryDate: entryDate,
     );

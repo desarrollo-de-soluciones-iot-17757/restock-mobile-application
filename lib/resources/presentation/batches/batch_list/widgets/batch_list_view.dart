@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:restock/resources/domain/entities/batch.dart';
 import 'package:restock/resources/presentation/batches/batch_list/widgets/batch_card.dart';
 
@@ -35,7 +36,13 @@ class BatchListView extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       itemCount: batches.length,
       separatorBuilder: (_, _) => const SizedBox(height: 12),
-      itemBuilder: (context, index) => BatchCard(batch: batches[index]),
+      itemBuilder: (context, index) {
+        final batch = batches[index];
+        return BatchCard(
+          batch: batch,
+          onTap: () => context.push('/inventory/${batch.id}', extra: batch),
+        );
+      },
     );
   }
 }

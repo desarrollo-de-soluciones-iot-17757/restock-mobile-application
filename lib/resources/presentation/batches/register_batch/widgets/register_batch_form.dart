@@ -9,6 +9,8 @@ import 'package:restock/resources/presentation/batches/register_batch/widgets/re
 import 'package:restock/shared/presentation/utils/enums/bloc_status.dart';
 import 'package:restock/shared/presentation/widgets/restok_button.dart';
 
+import '../../../../../shared/presentation/widgets/restock_outlined_button.dart';
+
 class RegisterBatchForm extends StatefulWidget {
   const RegisterBatchForm({super.key});
 
@@ -140,18 +142,10 @@ class _RegisterBatchFormState extends State<RegisterBatchForm> {
                                 _dispatch(const RegisterBatchSubmitted()),
                           ),
                           const SizedBox(height: 16),
-                          TextButton(
-                            onPressed: isLoading
-                                ? null
-                                : () => Navigator.of(context).pop(false),
-                            child: const Text(
-                              'Cancel',
-                              style: TextStyle(
-                                color: Color(0xFF7A808A),
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+                          RestockOutlinedButton(
+                            text: 'Cancel',
+                            onPressed: () => Navigator.of(context).pop(false),
+                            isLoading: isLoading,
                           ),
                           const SizedBox(height: 28),
                         ],

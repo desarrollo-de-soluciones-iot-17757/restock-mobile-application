@@ -31,10 +31,14 @@ class BatchMetricCard extends StatelessWidget {
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
             label,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
             style: const TextStyle(
               color: Color(0xFF6B7280),
               fontSize: 11,
@@ -45,6 +49,7 @@ class BatchMetricCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             value,
+            textAlign: TextAlign.center,
             style: TextStyle(
               color: valueColor,
               fontSize: 28,
@@ -53,11 +58,12 @@ class BatchMetricCard extends StatelessWidget {
             ),
           ),
           if (caption != null) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Text(
               caption!,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
               style: TextStyle(
                 color: valueColor,
                 fontSize: 12,

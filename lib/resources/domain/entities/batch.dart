@@ -11,6 +11,7 @@ class Batch {
     this.customSupplyName,
     this.minimumStock,
     this.maximumStock,
+    this.pictureUrl,
     this.expirationDate,
     this.entryDate,
   });
@@ -26,6 +27,7 @@ class Batch {
   final String? customSupplyName;
   final double? minimumStock;
   final double? maximumStock;
+  final String? pictureUrl;
   final DateTime? expirationDate;
   final DateTime? entryDate;
 

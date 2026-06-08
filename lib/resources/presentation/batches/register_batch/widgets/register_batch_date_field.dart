@@ -70,6 +70,38 @@ class RegisterBatchDateField extends StatelessWidget {
       initialDate: now.add(const Duration(days: 1)),
       firstDate: now,
       lastDate: DateTime(now.year + 10),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF007A4D),
+              onPrimary: Colors.white,
+              surface: Colors.white,
+              onSurface: Color(0xFF171A22),
+            ),
+            dialogTheme: DialogThemeData(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+            ),
+            datePickerTheme: const DatePickerThemeData(
+              backgroundColor: Colors.white,
+              headerBackgroundColor: Color(0xFF151C2A),
+              headerForegroundColor: Colors.white,
+              todayForegroundColor: WidgetStatePropertyAll(Color(0xFF007A4D)),
+              todayBorder: BorderSide(color: Color(0xFF007A4D)),
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFF007A4D),
+                textStyle: const TextStyle(fontWeight: FontWeight.w800),
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
 
     if (selectedDate == null) return;

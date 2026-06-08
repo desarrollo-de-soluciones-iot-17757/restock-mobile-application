@@ -13,25 +13,28 @@ class BatchOverviewMetrics extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: BatchMetricCard(
-            label: 'TOTAL ACTIVE BATCHES',
-            value: totalActiveBatches.toString(),
-            valueColor: const Color(0xFF171A22),
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: BatchMetricCard(
+              label: 'TOTAL ACTIVE BATCHES',
+              value: totalActiveBatches.toString(),
+              valueColor: const Color(0xFF171A22),
+            ),
           ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: BatchMetricCard(
-            label: 'NEAR EXPIRY (30D)',
-            value: nearExpiryCount.toString(),
-            valueColor: const Color(0xFFD96A2B),
-            caption: nearExpiryCount > 0 ? 'Requires attention' : null,
+          const SizedBox(width: 12),
+          Expanded(
+            child: BatchMetricCard(
+              label: 'NEAR EXPIRY (30D)',
+              value: nearExpiryCount.toString(),
+              valueColor: const Color(0xFFD96A2B),
+              caption: nearExpiryCount > 0 ? 'Requires attention' : null,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
