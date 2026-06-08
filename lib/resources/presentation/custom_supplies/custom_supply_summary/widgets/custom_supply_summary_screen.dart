@@ -18,7 +18,9 @@ class CustomSupplySummaryScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF9FAFB),
       appBar: AppBar(
         backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded, color: _ink),
           onPressed: () => context.pop(),

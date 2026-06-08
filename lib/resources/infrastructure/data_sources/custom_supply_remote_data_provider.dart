@@ -52,7 +52,7 @@ class CustomSupplyRemoteDataProvider {
   ) async {
     try {
       final uri = Uri.parse(
-        '${ApiConstants.baseUrl}${ApiConstants.customSupplyById.replaceAll('{customSupplyId}', customSupplyId)}',
+        '${ApiConstants.baseUrl}${ResourcesApiConstants.customSupplyById.replaceAll('{customSupplyId}', customSupplyId)}',
       );
 
       final response = await http.get(uri);
