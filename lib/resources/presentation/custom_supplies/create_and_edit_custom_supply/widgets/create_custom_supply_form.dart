@@ -144,6 +144,7 @@ class _CreateCustomSupplyFormState extends State<CreateCustomSupplyForm> {
                                 controller: _nameController,
                                 hint: 'SUPPLY NAME',
                                 enabled: !isLoading,
+                                errorText: state.nameError,
                                 onChanged: (value) => _dispatch(
                                   CreateCustomSupplyNameChanged(value),
                                 ),
@@ -154,6 +155,7 @@ class _CreateCustomSupplyFormState extends State<CreateCustomSupplyForm> {
                                 label: 'SELECT SUPPLY',
                                 value: state.supply,
                                 enabled: !isLoading,
+                                errorText: state.supplyError,
                                 onChanged: (supply) {
                                   if (supply == null) return;
                                   _dispatch(
@@ -172,6 +174,7 @@ class _CreateCustomSupplyFormState extends State<CreateCustomSupplyForm> {
                                       hint: 'MINIMUM CAPACITY',
                                       keyboardType: TextInputType.number,
                                       enabled: !isLoading,
+                                      errorText: state.minimumStockError,
                                       onChanged: (value) => _dispatch(
                                         CreateCustomSupplyMinimumStockChanged(
                                           value,
@@ -186,6 +189,7 @@ class _CreateCustomSupplyFormState extends State<CreateCustomSupplyForm> {
                                       hint: 'MAXIMUM CAPACITY',
                                       keyboardType: TextInputType.number,
                                       enabled: !isLoading,
+                                      errorText: state.maximumStockError,
                                       onChanged: (value) => _dispatch(
                                         CreateCustomSupplyMaximumStockChanged(
                                           value,
@@ -204,6 +208,7 @@ class _CreateCustomSupplyFormState extends State<CreateCustomSupplyForm> {
                                       hint: 'UNIT PRICE',
                                       keyboardType: TextInputType.number,
                                       enabled: !isLoading,
+                                      errorText: state.unitPriceError,
                                       onChanged: (value) => _dispatch(
                                         CreateCustomSupplyUnitPriceChanged(
                                           value,
@@ -252,6 +257,7 @@ class _CreateCustomSupplyFormState extends State<CreateCustomSupplyForm> {
                                 hint: 'DESCRIPTION',
                                 maxLines: 3,
                                 enabled: !isLoading,
+                                errorText: state.descriptionError,
                                 onChanged: (value) => _dispatch(
                                   CreateCustomSupplyDescriptionChanged(value),
                                 ),
@@ -266,7 +272,7 @@ class _CreateCustomSupplyFormState extends State<CreateCustomSupplyForm> {
                                     ? 'Save Changes'
                                     : 'Create Supply',
                                 isLoading: isLoading,
-                                enabled: state.isValid && !isLoading,
+                                enabled: !isLoading,
                                 onPressed: () => _dispatch(
                                   const CreateCustomSupplySubmitted(),
                                 ),
