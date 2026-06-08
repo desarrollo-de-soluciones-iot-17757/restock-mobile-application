@@ -35,16 +35,6 @@ class RestockAppBar extends StatelessWidget implements PreferredSizeWidget {
                 letterSpacing: 1.5,
               ),
             ),
-            SizedBox(height: 2),
-            Text(
-              'MAIN BRANCH',
-              style: TextStyle(
-                color: Color(0xFF8899AA),
-                fontSize: 11,
-                fontWeight: FontWeight.w500,
-                letterSpacing: 2.5,
-              ),
-            ),
           ],
         ),
       ),
