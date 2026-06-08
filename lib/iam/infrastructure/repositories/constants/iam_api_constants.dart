@@ -2,5 +2,5 @@
 class IamApiConstants {
 
   /// Authentication
-  static final String signIn = 'authentication/sign-in';
+  static final String signIn = 'auth/sign-in';
 }
