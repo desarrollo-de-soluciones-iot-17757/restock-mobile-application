@@ -1,5 +1,18 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
+import 'package:restock/devices/application/device_facade_service.dart';
+import 'package:restock/devices/application/device_threshold_facade_service.dart';
+import 'package:restock/devices/domain/repositories/batch_repository.dart';
+import 'package:restock/devices/domain/repositories/device_repository.dart';
+import 'package:restock/devices/domain/repositories/device_threshold_repository.dart';
+import 'package:restock/devices/infrastructure/data_sources/batch_remote_data_provider.dart';
+import 'package:restock/devices/infrastructure/data_sources/device_remote_data_provider.dart';
+import 'package:restock/devices/infrastructure/data_sources/device_threshold_remote_data_provider.dart';
+import 'package:restock/devices/infrastructure/repositories/batch_repository_impl.dart';
+import 'package:restock/devices/infrastructure/repositories/device_repository_impl.dart';
+import 'package:restock/devices/infrastructure/repositories/device_threshold_repository_impl.dart';
+import 'package:restock/devices/presentation/views/device_detail/bloc/device_detail_bloc.dart';
+import 'package:restock/devices/presentation/views/device_list/bloc/device_list_bloc.dart';
 import 'package:restock/iam/application/iam_facade_service.dart';
 import 'package:restock/iam/domain/repositories/auth_repository.dart';
 import 'package:restock/iam/infrastructure/data_sources/auth_remote_data_provider.dart';
@@ -45,9 +58,10 @@ Future<void> setupDependencies() async {
   await communicationsDependencies();
   await subscriptionsDependencies();
   await trackingDependencies();
+  await devicesDependencies();
 }
 
-// Secure Storage
+/// Secure Storage
 Future<void> secureStorageDependencies() async {
   serviceLocator.registerLazySingleton<FlutterSecureStorage>(
     () => const FlutterSecureStorage(
@@ -68,9 +82,9 @@ Future<void> localDatabase() async {
 
 /// Configures the dependencies for the IAM context.
 Future<void> iamDependencies() async {
-  // Application layer (Facade services)
+  /// Application layer (Facade services)
 
-  // Authentication
+  /// Authentication
   serviceLocator.registerLazySingleton<AuthFacadeService>(
     () => AuthFacadeService(
       authRepository: serviceLocator<AuthRepository>(),
@@ -79,9 +93,9 @@ Future<void> iamDependencies() async {
     ),
   );
 
-  // Infrastructure layer (Repositories and Data Providers)
+  /// Infrastructure layer (Repositories and Data Providers)
 
-  // Authentication
+  /// Authentication
   serviceLocator.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(
       authRemoteDataProvider: serviceLocator<AuthRemoteDataProvider>(),
@@ -92,9 +106,9 @@ Future<void> iamDependencies() async {
     () => AuthRemoteDataProvider(),
   );
 
-  // Presentation layer
+  /// Presentation layer
 
-  // Authentication - Sign In
+  /// Authentication - Sign In
   serviceLocator.registerFactory<SignInBloc>(
     () => SignInBloc(authFacadeService: serviceLocator<AuthFacadeService>()),
   );
@@ -123,7 +137,7 @@ Future<void> analyticsDependencies() async {
 Future<void> rmDependencies() async {
   // Application layer (Facade services)
 
-  // Custom Supply
+  /// Custom Supply
   serviceLocator.registerLazySingleton<CustomSupplyFacadeService>(
     () => CustomSupplyFacadeService(
       customSupplyRepository: serviceLocator<CustomSupplyRepository>(),
@@ -137,7 +151,7 @@ Future<void> rmDependencies() async {
     ),
   );
 
-  // Branch
+  /// Branch
   serviceLocator.registerLazySingleton<BranchFacadeService>(
     () => BranchFacadeService(
       branchRepository: serviceLocator<BranchRepository>(),
@@ -145,9 +159,9 @@ Future<void> rmDependencies() async {
     ),
   );
 
-  // Infrastructure layer (Repositories and Data Providers)
+  /// Infrastructure layer (Repositories and Data Providers)
 
-  // Custom Supply
+  /// Custom Supply
   serviceLocator.registerLazySingleton<CustomSupplyRemoteDataProvider>(
     () =>
         CustomSupplyRemoteDataProvider(http: serviceLocator<AuthHttpClient>()),
@@ -170,7 +184,7 @@ Future<void> rmDependencies() async {
     ),
   );
 
-  // Supply
+  /// Supply
   serviceLocator.registerLazySingleton<SupplyRemoteDataProvider>(
     () => SupplyRemoteDataProvider(http: serviceLocator<AuthHttpClient>()),
   );
@@ -186,7 +200,7 @@ Future<void> rmDependencies() async {
     ),
   );
 
-  // Branch
+  /// Branch
   serviceLocator.registerLazySingleton<BranchRemoteDataProvider>(
     () => BranchRemoteDataProvider(http: serviceLocator<AuthHttpClient>()),
   );
@@ -202,9 +216,9 @@ Future<void> rmDependencies() async {
     ),
   );
 
-  // Presentation layer
+  /// Presentation layer
 
-  // Custom Supply List Bloc
+  /// Custom Supply List Bloc
   serviceLocator.registerFactory<CustomSupplyListBloc>(
     () => CustomSupplyListBloc(
       customSupplyFacadeService: serviceLocator<CustomSupplyFacadeService>(),
@@ -217,7 +231,7 @@ Future<void> rmDependencies() async {
     ),
   );
 
-  // Branch List Bloc
+  /// Branch List Bloc
   serviceLocator.registerFactory<BranchListBloc>(
     () => BranchListBloc(
       branchFacadeService: serviceLocator<BranchFacadeService>(),
@@ -259,4 +273,70 @@ Future<void> subscriptionsDependencies() async {
 Future<void> trackingDependencies() async {
   // For example:
   // serviceLocator.registerLazySingleton<YourTrackingService>(() => YourTrackingServiceImpl());
+}
+
+/// Configures the dependencies for the Devices context.
+Future<void> devicesDependencies() async {
+  // Infrastructure
+  serviceLocator.registerLazySingleton<DeviceRemoteDataProvider>(
+    () => DeviceRemoteDataProvider(http: serviceLocator<AuthHttpClient>()),
+  );
+  serviceLocator.registerLazySingleton<DeviceRepository>(
+    () => DeviceRepositoryImpl(
+      deviceRemoteDataProvider: serviceLocator<DeviceRemoteDataProvider>(),
+    ),
+  );
+
+  serviceLocator.registerLazySingleton<BatchRemoteDataProvider>(
+    () => BatchRemoteDataProvider(http: serviceLocator<AuthHttpClient>()),
+  );
+  serviceLocator.registerLazySingleton<BatchRepository>(
+    () => BatchRepositoryImpl(
+      remoteDataProvider: serviceLocator<BatchRemoteDataProvider>(),
+    ),
+  );
+
+  // Application
+  serviceLocator.registerLazySingleton<DeviceFacadeService>(
+    () => DeviceFacadeService(
+      deviceRepository: serviceLocator<DeviceRepository>(),
+      batchRepository: serviceLocator<BatchRepository>(),
+      thresholdRepository: serviceLocator<DeviceThresholdRepository>(),
+      branchFacadeService: serviceLocator<BranchFacadeService>(),
+      tokenStorage: serviceLocator<TokenStorage>(),
+    ),
+  );
+
+  // Presentation
+  serviceLocator.registerFactory<DeviceListBloc>(
+    () => DeviceListBloc(
+      deviceFacadeService: serviceLocator<DeviceFacadeService>(),
+    ),
+  );
+  serviceLocator.registerFactory<DeviceDetailBloc>(
+    () => DeviceDetailBloc(
+      deviceFacadeService: serviceLocator<DeviceFacadeService>(),
+      deviceThresholdFacadeService:
+          serviceLocator<DeviceThresholdFacadeService>(),
+    ),
+  );
+
+  // Thresholds (M4)
+  serviceLocator.registerLazySingleton<DeviceThresholdRemoteDataProvider>(
+    () => DeviceThresholdRemoteDataProvider(
+      http: serviceLocator<AuthHttpClient>(),
+    ),
+  );
+  serviceLocator.registerLazySingleton<DeviceThresholdRepository>(
+    () => DeviceThresholdRepositoryImpl(
+      remoteDataProvider: serviceLocator<DeviceThresholdRemoteDataProvider>(),
+    ),
+  );
+  serviceLocator.registerLazySingleton<DeviceThresholdFacadeService>(
+    () => DeviceThresholdFacadeService(
+      thresholdRepository: serviceLocator<DeviceThresholdRepository>(),
+      deviceRepository: serviceLocator<DeviceRepository>(),
+      tokenStorage: serviceLocator<TokenStorage>(),
+    ),
+  );
 }
