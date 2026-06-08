@@ -43,8 +43,7 @@ class BranchRepositoryImpl implements BranchRepository {
 
       return branches;
     } catch (_) {
-      final localBranches = await branchLocalDataProvider
-          .getBranches();
+      final localBranches = await branchLocalDataProvider.getBranches();
       if (localBranches.isEmpty) {
         throw Exception('No internet connection and no cached data available');
       }
@@ -105,9 +104,19 @@ class BranchRepositoryImpl implements BranchRepository {
       final branchResponse = await branchRemoteDataProvider.getBranchById(
         branchId,
       );
-      return branchResponse.toDomain();
-    } catch (e) {
-      throw Exception('Failed to fetch branch: $e');
+      final branch = branchResponse.toDomain();
+
+      await branchLocalDataProvider.saveBranch(
+        BranchEntity.fromDomain(branch, branchResponse.accountId),
+      );
+
+      return branch;
+    } catch (_) {
+      final localBranch = await branchLocalDataProvider.getBranchById(branchId);
+      if (localBranch == null) {
+        throw Exception('No internet connection and no cached data available');
+      }
+      return localBranch.toDomain();
     }
   }
 
@@ -115,7 +124,10 @@ class BranchRepositoryImpl implements BranchRepository {
   @override
   Future<void> updateBranchStatus(UpdateBranchStatusCommand command) async {
     try {
-      final request = UpdateBranchStatusRequest(branchId: command.branchId, status: command.status);
+      final request = UpdateBranchStatusRequest(
+        branchId: command.branchId,
+        status: command.status,
+      );
       return await branchRemoteDataProvider.updateBranchStatus(request);
     } catch (e) {
       throw Exception('Failed to update branch status: $e');

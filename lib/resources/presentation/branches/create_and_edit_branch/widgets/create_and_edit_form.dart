@@ -209,7 +209,13 @@ class _CreateAndEditBranchViewState extends State<_CreateAndEditBranchView> {
                           buildWhen: (prev, curr) =>
                               prev.isEditing != curr.isEditing ||
                               prev.branchStatus != curr.branchStatus ||
-                              prev.status != curr.status,
+                              prev.status != curr.status ||
+                              prev.submitted != curr.submitted ||
+                              prev.name != curr.name ||
+                              prev.address != curr.address ||
+                              prev.stateOrRegion != curr.stateOrRegion ||
+                              prev.city != curr.city ||
+                              prev.country != curr.country,
                           builder: (context, state) {
                             final isActive = state.branchStatus == 'active';
                             final isEditing = state.isEditing;
@@ -234,6 +240,7 @@ class _CreateAndEditBranchViewState extends State<_CreateAndEditBranchView> {
                                 RestockTextField(
                                   controller: _nameController,
                                   hint: 'BRANCH NAME',
+                                  errorText: state.nameError,
                                   enabled: isActive && !isLoading,
                                   onChanged: isActive && !isLoading
                                       ? (v) => _dispatch(
@@ -246,6 +253,7 @@ class _CreateAndEditBranchViewState extends State<_CreateAndEditBranchView> {
                                 RestockTextField(
                                   controller: _addressController,
                                   hint: 'STREET ADDRESS',
+                                  errorText: state.addressError,
                                   enabled: isActive && !isLoading,
                                   onChanged: isActive && !isLoading
                                       ? (v) => _dispatch(
@@ -258,6 +266,7 @@ class _CreateAndEditBranchViewState extends State<_CreateAndEditBranchView> {
                                 RestockTextField(
                                   controller: _stateOrRegionController,
                                   hint: 'STATE / REGION',
+                                  errorText: state.stateOrRegionError,
                                   enabled: isActive && !isLoading,
                                   onChanged: isActive && !isLoading
                                       ? (v) => _dispatch(
@@ -272,6 +281,7 @@ class _CreateAndEditBranchViewState extends State<_CreateAndEditBranchView> {
                                 RestockTextField(
                                   controller: _cityController,
                                   hint: 'CITY',
+                                  errorText: state.cityError,
                                   enabled: isActive && !isLoading,
                                   onChanged: isActive && !isLoading
                                       ? (v) => _dispatch(
@@ -284,6 +294,7 @@ class _CreateAndEditBranchViewState extends State<_CreateAndEditBranchView> {
                                 RestockTextField(
                                   controller: _countryController,
                                   hint: 'COUNTRY',
+                                  errorText: state.countryError,
                                   enabled: isActive && !isLoading,
                                   onChanged: isActive && !isLoading
                                       ? (v) => _dispatch(
