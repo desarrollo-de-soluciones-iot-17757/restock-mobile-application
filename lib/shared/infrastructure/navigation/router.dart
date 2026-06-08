@@ -5,11 +5,16 @@ import 'package:restock/iam/presentation/views/sign_in_form/bloc/sign_in_form_bl
 import 'package:restock/iam/presentation/views/sign_in_form/pages/sign_in_form_screen.dart';
 import 'package:restock/injections.dart';
 import 'package:restock/resources/application/branch_facade_service.dart';
+import 'package:restock/resources/application/custom_supply_facade_service.dart';
+import 'package:restock/resources/domain/entities/custom_supply.dart';
 import 'package:restock/resources/presentation/branches/branch_list/bloc/branch_list_bloc.dart';
 import 'package:restock/resources/presentation/branches/branch_list/bloc/branch_list_event.dart';
 import 'package:restock/resources/presentation/branches/pages/branch_page.dart';
 import 'package:restock/resources/presentation/custom_supplies/custom_supply_list/bloc/custom_supply_list_bloc.dart';
 import 'package:restock/resources/presentation/custom_supplies/custom_supply_list/bloc/custom_supply_list_event.dart';
+import 'package:restock/resources/presentation/custom_supplies/custom_supply_summary/bloc/custom_supply_summary_bloc.dart';
+import 'package:restock/resources/presentation/custom_supplies/custom_supply_summary/bloc/custom_supply_summary_event.dart';
+import 'package:restock/resources/presentation/custom_supplies/custom_supply_summary/widgets/custom_supply_summary_screen.dart';
 import 'package:restock/resources/presentation/inventory_management/pages/inventory_page.dart';
 import 'package:restock/shared/infrastructure/services/auth_status_notifier.dart';
 import '../../presentation/widgets/shell_scaffold.dart';
@@ -55,6 +60,32 @@ GoRouter buildRouter(AuthStatusNotifier authNotifier) => GoRouter(
                       ..add(const GetCustomSuppliesByBranchId()),
                 child: const InventoryPage(),
               ),
+              routes: [
+                GoRoute(
+                  path: ':customSupplyId',
+                  builder: (context, state) {
+                    final customSupplyId =
+                        state.pathParameters['customSupplyId']!;
+                    final customSupply = state.extra;
+
+                    return BlocProvider<CustomSupplySummaryBloc>(
+                      create: (_) =>
+                          CustomSupplySummaryBloc(
+                            customSupplyFacadeService:
+                                serviceLocator<CustomSupplyFacadeService>(),
+                          )..add(
+                            CustomSupplySummaryStarted(
+                              customSupplyId: customSupplyId,
+                              initialCustomSupply: customSupply is CustomSupply
+                                  ? customSupply
+                                  : null,
+                            ),
+                          ),
+                      child: const CustomSupplySummaryScreen(),
+                    );
+                  },
+                ),
+              ],
             ),
           ],
         ),

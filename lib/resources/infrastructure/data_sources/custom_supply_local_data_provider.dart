@@ -11,10 +11,27 @@ class CustomSupplyLocalDataProvider {
   Future<List<CustomSupplyEntity>> getCustomSupplies() async {
     final db = await appDatabase.database;
 
+    final result = await db.rawQuery(_customSupplyJoinQuery());
+
+    return result.map(CustomSupplyEntity.fromMap).toList();
+  }
+
+  Future<CustomSupplyEntity?> getCustomSupplyById(String customSupplyId) async {
+    final db = await appDatabase.database;
+    final result = await db.rawQuery(
+      '${_customSupplyJoinQuery()} WHERE cs.${DatabaseConstants.customSupplyId} = ?',
+      [customSupplyId],
+    );
+
+    if (result.isEmpty) return null;
+    return CustomSupplyEntity.fromMap(result.first);
+  }
+
+  String _customSupplyJoinQuery() {
     final customSuppliesTable = DatabaseConstants.customSuppliesTable;
     final suppliesTable = DatabaseConstants.suppliesTable;
 
-    final result = await db.rawQuery('''
+    return '''
       SELECT
         cs.${DatabaseConstants.customSupplyId},
         cs.${DatabaseConstants.customSupplyName},
@@ -37,9 +54,7 @@ class CustomSupplyLocalDataProvider {
       INNER JOIN $suppliesTable AS s
         ON cs.${DatabaseConstants.customSupplySupplyId}
           = s.${DatabaseConstants.supplyId}
-    ''');
-
-    return result.map(CustomSupplyEntity.fromMap).toList();
+    ''';
   }
 
   Future<void> saveCustomSupplies(

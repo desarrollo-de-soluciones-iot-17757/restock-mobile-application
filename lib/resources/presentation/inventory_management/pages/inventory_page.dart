@@ -69,7 +69,10 @@ class InventoryPage extends StatelessWidget {
                   onAddSupply: () => _openCreateSheet(context),
                 );
               }
-              return CustomSupplyListView(customSupplies: state.customSupplies);
+              return CustomSupplyListView(
+                customSupplies: state.filteredCustomSupplies,
+                isSearching: state.isSearching,
+              );
           }
         },
       ),

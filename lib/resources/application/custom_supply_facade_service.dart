@@ -27,6 +27,14 @@ class CustomSupplyFacadeService {
     }
   }
 
+  Future<CustomSupply> getCustomSupplyById(String customSupplyId) async {
+    try {
+      return await customSupplyRepository.getCustomSupplyById(customSupplyId);
+    } catch (e) {
+      throw Exception('Failed to fetch custom supply: $e');
+    }
+  }
+
   Future<CustomSupply> registerCustomSupply({
     required String supplyId,
     required String name,
