@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:restock/devices/application/device_facade_service.dart';
-import 'package:restock/devices/domain/entities/batch.dart';
+import 'package:restock/resources/domain/entities/batch.dart';
 import 'package:restock/devices/domain/entities/device_measurement.dart';
 import 'package:restock/devices/presentation/utils/devices_theme.dart';
 import 'package:restock/devices/presentation/views/device_detail/bloc/device_detail_bloc.dart';

@@ -21,4 +21,7 @@ class ResourcesApiConstants {
   static final String supplies = 'supplies';
 
   static final String suppliesCategories = 'supplies/categories';
+
+  /// Endpoints for batches.
+  static final String batches = 'batches';
 }
