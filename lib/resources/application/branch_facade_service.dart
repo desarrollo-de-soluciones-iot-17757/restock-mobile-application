@@ -1,10 +1,11 @@
 import 'package:image_picker/image_picker.dart';
 import 'package:restock/resources/domain/entities/branch.dart';
-import 'package:restock/resources/domain/entities/register_branch_command.dart';
-import 'package:restock/resources/domain/entities/update_branch_command.dart';
-import 'package:restock/resources/domain/entities/update_branch_status_command.dart';
+import 'package:restock/resources/domain/commands/register_branch_command.dart';
 import 'package:restock/resources/domain/repositories/branch_repository.dart';
 import 'package:restock/shared/infrastructure/storage/token_storage.dart';
+
+import '../domain/commands/update_branch_command.dart';
+import '../domain/commands/update_branch_status_command.dart';
 
 /// Facade service to manage branch-related operations.
 class BranchFacadeService {
@@ -100,6 +101,45 @@ class BranchFacadeService {
     } catch (e) {
       throw Exception('Failed to fetch branch: $e');
     }
+  }
+
+  /// Reads the locally selected branch.
+  Future<String?> getActiveBranchId() async {
+    return await tokenStorage.readBranchId();
+  }
+
+  /// Saves the locally selected branch.
+  Future<void> setActiveBranchId(String branchId) async {
+    await tokenStorage.saveBranchId(branchId);
+  }
+
+  /// Ensures there is a selected branch available for branch-scoped features.
+  Future<String?> resolveActiveBranchId(List<Branch> branches) async {
+    if (branches.isEmpty) return null;
+
+    final selectedBranchId = await tokenStorage.readBranchId();
+    final selectableBranches = _selectableBranches(branches);
+    final selectedBranchExists = selectableBranches.any(
+      (branch) => branch.branchId == selectedBranchId,
+    );
+
+    final resolvedBranchId = selectedBranchExists
+        ? selectedBranchId!
+        : selectableBranches.first.branchId;
+
+    if (resolvedBranchId != selectedBranchId) {
+      await tokenStorage.saveBranchId(resolvedBranchId);
+    }
+
+    return resolvedBranchId;
+  }
+
+  List<Branch> _selectableBranches(List<Branch> branches) {
+    final activeBranches = branches
+        .where((branch) => branch.status.toLowerCase() == 'active')
+        .toList();
+
+    return activeBranches.isEmpty ? branches : activeBranches;
   }
 
   /// Updates the status of a branch with the provided status.
