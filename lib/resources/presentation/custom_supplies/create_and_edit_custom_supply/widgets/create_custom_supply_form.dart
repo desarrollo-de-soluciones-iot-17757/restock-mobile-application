@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:restock/resources/presentation/custom_supplies/create_and_edit_custom_supply/bloc/create_and_edit_custom_supply_bloc.dart';
 import 'package:restock/resources/presentation/custom_supplies/create_and_edit_custom_supply/bloc/create_and_edit_custom_supply_event.dart';
 import 'package:restock/resources/presentation/custom_supplies/create_and_edit_custom_supply/bloc/create_and_edit_custom_supply_state.dart';
-import 'package:restock/resources/presentation/custom_supplies/create_and_edit_custom_supply/widgets/custom_supply_editing_notice.dart';
 import 'package:restock/resources/presentation/custom_supplies/create_and_edit_custom_supply/widgets/custom_supply_labeled_text_field.dart';
 import 'package:restock/shared/presentation/widgets/select_field.dart';
 import 'package:restock/resources/presentation/supplies/supply_list/widgets/supply_selector_field.dart';
@@ -140,13 +139,6 @@ class _CreateCustomSupplyFormState extends State<CreateCustomSupplyForm> {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              if (state.isEditing) ...[
-                                CustomSupplyEditingNotice(
-                                  name: state.name,
-                                  supplyName: state.supply?.name ?? 'Supply',
-                                ),
-                                const SizedBox(height: 14),
-                              ],
                               ImagePickerField(
                                 imageUrl: state.pictureUrl,
                                 enabled: !isLoading,
