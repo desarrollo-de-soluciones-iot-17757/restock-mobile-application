@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:restock/resources/domain/entities/batch.dart';
+import 'package:restock/resources/presentation/batches/batch_list/bloc/batch_list_bloc.dart';
+import 'package:restock/resources/presentation/batches/batch_list/bloc/batch_list_event.dart';
 import 'package:restock/resources/presentation/batches/batch_list/widgets/batch_card.dart';
 
 class BatchListView extends StatelessWidget {
@@ -40,7 +43,15 @@ class BatchListView extends StatelessWidget {
         final batch = batches[index];
         return BatchCard(
           batch: batch,
-          onTap: () => context.push('/inventory/${batch.id}', extra: batch),
+          onTap: () async {
+            final updated = await context.push<bool>(
+              '/inventory/${batch.id}',
+              extra: batch,
+            );
+            if (updated == true && context.mounted) {
+              context.read<BatchListBloc>().add(const BatchListStarted());
+            }
+          },
         );
       },
     );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:restock/injections.dart';
+import 'package:restock/resources/application/branch_facade_service.dart';
 import 'package:restock/resources/presentation/batches/batch_list/bloc/batch_list_bloc.dart';
 import 'package:restock/resources/presentation/batches/batch_list/bloc/batch_list_event.dart';
 import 'package:restock/resources/presentation/batches/batch_list/bloc/batch_list_state.dart';
@@ -10,16 +11,45 @@ import 'package:restock/resources/presentation/batches/batch_list/widgets/batch_
 import 'package:restock/resources/presentation/batches/batch_list/widgets/batch_list_view.dart';
 import 'package:restock/resources/presentation/batches/batch_list/widgets/batch_overview_metrics.dart';
 import 'package:restock/resources/presentation/batches/batch_list/widgets/batch_search_field.dart';
-import 'package:restock/resources/presentation/batches/register_batch/bloc/register_batch_bloc.dart';
-import 'package:restock/resources/presentation/batches/register_batch/bloc/register_batch_event.dart';
-import 'package:restock/resources/presentation/batches/register_batch/widgets/register_batch_form.dart';
+import 'package:restock/resources/presentation/batches/create_and_edit_batch/bloc/create_and_edit_batch_bloc.dart';
+import 'package:restock/resources/presentation/batches/create_and_edit_batch/bloc/create_and_edit_batch_event.dart';
+import 'package:restock/resources/presentation/batches/create_and_edit_batch/widgets/create_and_edit_batch_form.dart';
 import 'package:restock/shared/presentation/utils/enums/bloc_status.dart';
 import 'package:restock/shared/presentation/widgets/app_bar.dart';
 
-class BatchesPage extends StatelessWidget {
+class BatchesPage extends StatefulWidget {
   const BatchesPage({super.key});
 
-  Future<void> _openRegisterBatchSheet(BuildContext context) async {
+  @override
+  State<BatchesPage> createState() => _BatchesPageState();
+}
+
+class _BatchesPageState extends State<BatchesPage> {
+  late final BranchFacadeService _branchFacadeService;
+
+  @override
+  void initState() {
+    super.initState();
+    _branchFacadeService = serviceLocator<BranchFacadeService>();
+    _branchFacadeService.activeBranchIdListenable.addListener(
+      _refreshForActiveBranch,
+    );
+  }
+
+  @override
+  void dispose() {
+    _branchFacadeService.activeBranchIdListenable.removeListener(
+      _refreshForActiveBranch,
+    );
+    super.dispose();
+  }
+
+  void _refreshForActiveBranch() {
+    if (!mounted) return;
+    context.read<BatchListBloc>().add(const BatchListStarted());
+  }
+
+  Future<void> _openCreateAndEditBatchSheet(BuildContext context) async {
     final batchListBloc = context.read<BatchListBloc>();
 
     final created = await showModalBottomSheet<bool>(
@@ -29,13 +59,13 @@ class BatchesPage extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (_) => BlocProvider<RegisterBatchBloc>(
+      builder: (_) => BlocProvider<CreateAndEditBatchBloc>(
         create: (_) =>
-            serviceLocator<RegisterBatchBloc>()
-              ..add(const RegisterBatchStarted()),
+            serviceLocator<CreateAndEditBatchBloc>()
+              ..add(const CreateAndEditBatchStarted()),
         child: Padding(
           padding: MediaQuery.viewInsetsOf(context),
-          child: const RegisterBatchForm(),
+          child: const CreateAndEditBatchForm(),
         ),
       ),
     );
@@ -80,8 +110,8 @@ class BatchesPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 18),
                       BatchActionBar(
-                        onAddBatch: () => _openRegisterBatchSheet(context),
-                        onCustomSupplies: () => context.go('/supplies')
+                        onAddBatch: () => _openCreateAndEditBatchSheet(context),
+                        onCustomSupplies: () => context.go('/supplies'),
                       ),
                       const SizedBox(height: 18),
                       BatchOverviewMetrics(

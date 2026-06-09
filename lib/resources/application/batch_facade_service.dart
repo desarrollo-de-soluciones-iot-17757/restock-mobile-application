@@ -1,4 +1,5 @@
 import 'package:restock/resources/domain/commands/register_batch_command.dart';
+import 'package:restock/resources/domain/commands/update_batch_command.dart';
 import 'package:restock/resources/domain/entities/batch.dart';
 import 'package:restock/resources/domain/repositories/batch_repository.dart';
 import 'package:restock/resources/application/branch_facade_service.dart';
@@ -76,6 +77,30 @@ class BatchFacadeService {
       return await batchRepository.registerBatch(command);
     } catch (e) {
       throw Exception('Failed to register batch: $e');
+    }
+  }
+
+  Future<Batch> updateBatch({
+    required String batchId,
+    required String code,
+    required double currentStock,
+    required String customSupplyId,
+    required String branchId,
+    required String expirationDate,
+  }) async {
+    try {
+      final command = UpdateBatchCommand(
+        batchId: batchId,
+        code: code,
+        currentStock: currentStock,
+        customSupplyId: customSupplyId,
+        branchId: branchId,
+        expirationDate: expirationDate,
+      );
+
+      return await batchRepository.updateBatch(command);
+    } catch (e) {
+      throw Exception('Failed to update batch: $e');
     }
   }
 

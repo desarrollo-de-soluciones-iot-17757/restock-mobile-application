@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:restock/resources/domain/entities/custom_supply.dart';
 
-class RegisterBatchSupplyField extends StatefulWidget {
-  const RegisterBatchSupplyField({
+class CreateAndEditBatchSupplyField extends StatefulWidget {
+  const CreateAndEditBatchSupplyField({
     super.key,
     required this.supplies,
     required this.value,
@@ -18,11 +18,12 @@ class RegisterBatchSupplyField extends StatefulWidget {
   final ValueChanged<CustomSupply> onChanged;
 
   @override
-  State<RegisterBatchSupplyField> createState() =>
-      _RegisterBatchSupplyFieldState();
+  State<CreateAndEditBatchSupplyField> createState() =>
+      _CreateAndEditBatchSupplyFieldState();
 }
 
-class _RegisterBatchSupplyFieldState extends State<RegisterBatchSupplyField>
+class _CreateAndEditBatchSupplyFieldState
+    extends State<CreateAndEditBatchSupplyField>
     with SingleTickerProviderStateMixin {
   bool _open = false;
   late List<CustomSupply> _filtered;
@@ -40,19 +41,18 @@ class _RegisterBatchSupplyFieldState extends State<RegisterBatchSupplyField>
       vsync: this,
       duration: const Duration(milliseconds: 220),
     );
-    _expandAnim = CurvedAnimation(
-      parent: _animCtrl,
-      curve: Curves.easeInOut,
-    );
+    _expandAnim = CurvedAnimation(parent: _animCtrl, curve: Curves.easeInOut);
   }
 
   void _onSearch() {
     final q = _searchCtrl.text.toLowerCase();
     setState(() {
       _filtered = widget.supplies
-          .where((s) =>
-      s.name.toLowerCase().contains(q) ||
-          s.category.toLowerCase().contains(q))
+          .where(
+            (s) =>
+                s.name.toLowerCase().contains(q) ||
+                s.category.toLowerCase().contains(q),
+          )
           .toList();
     });
   }
@@ -64,7 +64,7 @@ class _RegisterBatchSupplyFieldState extends State<RegisterBatchSupplyField>
       _animCtrl.forward();
       Future.delayed(
         const Duration(milliseconds: 200),
-            () => _searchFocus.requestFocus(),
+        () => _searchFocus.requestFocus(),
       );
     } else {
       _animCtrl.reverse();
@@ -107,10 +107,7 @@ class _RegisterBatchSupplyFieldState extends State<RegisterBatchSupplyField>
           ),
           const SizedBox(height: 8),
           _buildTrigger(),
-          SizeTransition(
-            sizeFactor: _expandAnim,
-            child: _buildPanel(),
-          ),
+          SizeTransition(sizeFactor: _expandAnim, child: _buildPanel()),
           if (widget.errorText != null) ...[
             const SizedBox(height: 6),
             Text(
@@ -235,39 +232,38 @@ class _RegisterBatchSupplyFieldState extends State<RegisterBatchSupplyField>
             constraints: const BoxConstraints(maxHeight: 240),
             child: _filtered.isEmpty
                 ? const Padding(
-              padding: EdgeInsets.symmetric(vertical: 18),
-              child: Text(
-                'Sin resultados',
-                style: TextStyle(
-                  color: Color(0xFF9AA3AF),
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            )
+                    padding: EdgeInsets.symmetric(vertical: 18),
+                    child: Text(
+                      'Sin resultados',
+                      style: TextStyle(
+                        color: Color(0xFF9AA3AF),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  )
                 : ListView.separated(
-              padding: const EdgeInsets.all(8),
-              shrinkWrap: true,
-              itemCount: _filtered.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 4),
-              itemBuilder: (context, i) {
-                final s = _filtered[i];
-                final isSelected =
-                    s.customSupplyId == widget.value?.customSupplyId;
-                return _SupplyTile(
-                  supply: s,
-                  isSelected: isSelected,
-                  onTap: () => _select(s),
-                );
-              },
-            ),
+                    padding: const EdgeInsets.all(8),
+                    shrinkWrap: true,
+                    itemCount: _filtered.length,
+                    separatorBuilder: (_, _) => const SizedBox(height: 4),
+                    itemBuilder: (context, i) {
+                      final s = _filtered[i];
+                      final isSelected =
+                          s.customSupplyId == widget.value?.customSupplyId;
+                      return _SupplyTile(
+                        supply: s,
+                        isSelected: isSelected,
+                        onTap: () => _select(s),
+                      );
+                    },
+                  ),
           ),
         ],
       ),
     );
   }
 }
-
 
 class _SupplyAvatar extends StatelessWidget {
   const _SupplyAvatar({required this.supply});
@@ -363,9 +359,7 @@ class _SupplyTile extends StatelessWidget {
             color: isSelected ? const Color(0xFFE8F5EE) : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: isSelected
-                  ? const Color(0xFFB7E2D1)
-                  : Colors.transparent,
+              color: isSelected ? const Color(0xFFB7E2D1) : Colors.transparent,
               width: 0.5,
             ),
           ),

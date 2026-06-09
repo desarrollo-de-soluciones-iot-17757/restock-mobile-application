@@ -1,11 +1,14 @@
 import 'package:restock/resources/domain/entities/custom_supply.dart';
 import 'package:restock/shared/presentation/utils/enums/bloc_status.dart';
 
-class RegisterBatchState {
-  const RegisterBatchState({
+class CreateAndEditBatchState {
+  const CreateAndEditBatchState({
     this.status = Status.initial,
     this.suppliesStatus = Status.initial,
     this.customSupplies = const [],
+    this.batchId,
+    this.code = '',
+    this.branchId = '',
     this.selectedCustomSupply,
     this.currentStock = '',
     this.expirationDate = '',
@@ -16,6 +19,9 @@ class RegisterBatchState {
   final Status status;
   final Status suppliesStatus;
   final List<CustomSupply> customSupplies;
+  final String? batchId;
+  final String code;
+  final String branchId;
   final CustomSupply? selectedCustomSupply;
   final String currentStock;
   final String expirationDate;
@@ -23,6 +29,8 @@ class RegisterBatchState {
   final String? errorMessage;
 
   bool get isLoading => status == Status.loading;
+
+  bool get isEditing => batchId != null;
 
   bool get isValid =>
       selectedCustomSupply != null &&
@@ -49,16 +57,23 @@ class RegisterBatchState {
   String? get expirationDateError {
     if (!submitted) return null;
     if (expirationDate.trim().isEmpty) return 'Expiration date is required';
-    if (_parseDate(expirationDate) == null) return 'Use mm/dd/yyyy';
+    final date = _parseDate(expirationDate);
+    if (date == null) return 'Use mm/dd/yyyy';
+    if (!date.isAfter(_today())) {
+      return 'Expiration date must be after today';
+    }
     return null;
   }
 
   DateTime? get parsedExpirationDate => _parseDate(expirationDate);
 
-  RegisterBatchState copyWith({
+  CreateAndEditBatchState copyWith({
     Status? status,
     Status? suppliesStatus,
     List<CustomSupply>? customSupplies,
+    String? batchId,
+    String? code,
+    String? branchId,
     CustomSupply? selectedCustomSupply,
     bool clearSelectedCustomSupply = false,
     String? currentStock,
@@ -66,10 +81,13 @@ class RegisterBatchState {
     bool? submitted,
     String? errorMessage,
   }) {
-    return RegisterBatchState(
+    return CreateAndEditBatchState(
       status: status ?? this.status,
       suppliesStatus: suppliesStatus ?? this.suppliesStatus,
       customSupplies: customSupplies ?? this.customSupplies,
+      batchId: batchId ?? this.batchId,
+      code: code ?? this.code,
+      branchId: branchId ?? this.branchId,
       selectedCustomSupply: clearSelectedCustomSupply
           ? null
           : selectedCustomSupply ?? this.selectedCustomSupply,
@@ -96,5 +114,10 @@ class RegisterBatchState {
     }
 
     return date;
+  }
+
+  DateTime _today() {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day);
   }
 }

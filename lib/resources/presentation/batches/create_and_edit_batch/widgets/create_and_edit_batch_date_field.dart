@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class RegisterBatchDateField extends StatelessWidget {
-  const RegisterBatchDateField({
+class CreateAndEditBatchDateField extends StatelessWidget {
+  const CreateAndEditBatchDateField({
     super.key,
     required this.controller,
     required this.enabled,
@@ -65,10 +65,17 @@ class RegisterBatchDateField extends StatelessWidget {
 
   Future<void> _pickDate(BuildContext context) async {
     final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final tomorrow = today.add(const Duration(days: 1));
+    final currentValue = _parseDate(controller.text);
+    final initialDate = currentValue != null && currentValue.isAfter(today)
+        ? currentValue
+        : tomorrow;
+
     final selectedDate = await showDatePicker(
       context: context,
-      initialDate: now.add(const Duration(days: 1)),
-      firstDate: now,
+      initialDate: initialDate,
+      firstDate: tomorrow,
       lastDate: DateTime(now.year + 10),
       builder: (context, child) {
         return Theme(
@@ -112,5 +119,23 @@ class RegisterBatchDateField extends StatelessWidget {
 
     controller.text = value;
     onChanged(value);
+  }
+
+  DateTime? _parseDate(String value) {
+    final parts = value.trim().split('/');
+    if (parts.length != 3) return null;
+
+    final month = int.tryParse(parts[0]);
+    final day = int.tryParse(parts[1]);
+    final year = int.tryParse(parts[2]);
+
+    if (month == null || day == null || year == null) return null;
+
+    final date = DateTime(year, month, day);
+    if (date.month != month || date.day != day || date.year != year) {
+      return null;
+    }
+
+    return date;
   }
 }

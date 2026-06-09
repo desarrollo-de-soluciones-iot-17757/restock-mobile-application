@@ -16,8 +16,10 @@ class ProfileGeneralPage extends StatefulWidget {
 }
 
 class _ProfileGeneralPageState extends State<ProfileGeneralPage> {
+  String? _storedBranchId;
   String? _selectedBranchId;
   bool _hasLoadedSelectedBranch = false;
+  bool _isSaving = false;
 
   @override
   void didChangeDependencies() {
@@ -34,15 +36,13 @@ class _ProfileGeneralPageState extends State<ProfileGeneralPage> {
         .getActiveBranchId();
 
     if (!mounted) return;
-    setState(() => _selectedBranchId = selectedBranchId);
+    setState(() {
+      _storedBranchId = selectedBranchId;
+      _selectedBranchId = selectedBranchId;
+    });
   }
 
-  Future<void> _selectBranch(Branch branch) async {
-    await context.read<BranchFacadeService>().setActiveBranchId(
-      branch.branchId,
-    );
-
-    if (!mounted) return;
+  void _selectBranch(Branch branch) {
     setState(() => _selectedBranchId = branch.branchId);
   }
 
@@ -108,7 +108,38 @@ class _ProfileGeneralPageState extends State<ProfileGeneralPage> {
     );
 
     if (selectedBranch == null) return;
-    await _selectBranch(selectedBranch);
+    _selectBranch(selectedBranch);
+  }
+
+  Future<void> _savePreferences(String branchId) async {
+    if (_isSaving) return;
+    setState(() => _isSaving = true);
+
+    try {
+      await context.read<BranchFacadeService>().setActiveBranchId(branchId);
+
+      if (!mounted) return;
+      setState(() {
+        _storedBranchId = branchId;
+        _selectedBranchId = branchId;
+        _isSaving = false;
+      });
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Preferences saved')));
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _isSaving = false);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not save preferences')),
+      );
+    }
+  }
+
+  void _discardChanges() {
+    setState(() => _selectedBranchId = _storedBranchId);
   }
 
   @override
@@ -117,6 +148,8 @@ class _ProfileGeneralPageState extends State<ProfileGeneralPage> {
       builder: (context, state) {
         final branches = _selectableBranches(state.branches);
         final selectedBranch = _selectedBranch(branches);
+        final hasSelectedBranch = selectedBranch != null;
+        final hasChanges = _selectedBranchId != _storedBranchId;
 
         return ListView(
           padding: const EdgeInsets.fromLTRB(20, 22, 20, 32),
@@ -127,6 +160,19 @@ class _ProfileGeneralPageState extends State<ProfileGeneralPage> {
               onTap: branches.isEmpty
                   ? null
                   : () => _showBranchPicker(branches),
+            ),
+            const SizedBox(height: 28),
+            _PreferencesButton(
+              label: 'Discard Changes',
+              isOutlined: true,
+              onPressed: hasChanges && !_isSaving ? _discardChanges : null,
+            ),
+            const SizedBox(height: 12),
+            _PreferencesButton(
+              label: _isSaving ? 'Saving...' : 'Save Preferences',
+              onPressed: hasSelectedBranch && !_isSaving
+                  ? () => _savePreferences(selectedBranch.branchId)
+                  : null,
             ),
           ],
         );
@@ -148,6 +194,55 @@ class _ProfileGeneralPageState extends State<ProfileGeneralPage> {
     return branches.cast<Branch?>().firstWhere(
       (branch) => branch?.branchId == _selectedBranchId,
       orElse: () => branches.first,
+    );
+  }
+}
+
+class _PreferencesButton extends StatelessWidget {
+  const _PreferencesButton({
+    required this.label,
+    required this.onPressed,
+    this.isOutlined = false,
+  });
+
+  final String label;
+  final VoidCallback? onPressed;
+  final bool isOutlined;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDisabled = onPressed == null;
+    final backgroundColor = isOutlined ? Colors.white : const Color(0xFF007A4D);
+    final foregroundColor = isOutlined
+        ? (isDisabled ? textSecondary : textTertiary)
+        : Colors.white;
+
+    return SizedBox(
+      height: 58,
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          elevation: 0,
+          backgroundColor: backgroundColor,
+          disabledBackgroundColor: backgroundColor,
+          foregroundColor: foregroundColor,
+          disabledForegroundColor: foregroundColor.withValues(alpha: 0.45),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+            side: BorderSide(
+              color: isOutlined
+                  ? (isDisabled ? const Color(0xFFD0D2D8) : textSecondary)
+                  : const Color(0xFF007A4D),
+              width: isOutlined ? 1.6 : 1,
+            ),
+          ),
+        ),
+        child: Text(
+          label,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+        ),
+      ),
     );
   }
 }

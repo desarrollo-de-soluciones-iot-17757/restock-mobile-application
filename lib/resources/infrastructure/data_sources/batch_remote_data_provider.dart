@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:restock/iam/infrastructure/interceptor/auth_http_client.dart';
 import 'package:restock/resources/infrastructure/models/register_batch_request.dart';
+import 'package:restock/resources/infrastructure/models/update_batch_request.dart';
 import 'package:restock/resources/infrastructure/repositories/constants/resources_api_constants.dart';
 import 'package:restock/shared/infrastructure/repositories/constants/api_constants.dart';
 
@@ -19,8 +20,6 @@ class BatchRemoteDataProvider {
     required String branchId,
     String? customSupplyId,
   }) async {
-    // The backend accepts only one GET filter at a time for batches.
-    // accountId is still required by upper layers for consistency and POST.
     final queryParameters = <String, String>{
       'branchId': branchId,
       if (customSupplyId != null && customSupplyId.isNotEmpty)
@@ -38,8 +37,7 @@ class BatchRemoteDataProvider {
     );
 
     if (response.statusCode == HttpStatus.ok) {
-      final decoded = jsonDecode(response.body);
-      final data = _extractBatchList(decoded);
+      final data = jsonDecode(response.body) as List;
       debugPrint('[BatchRemoteDataProvider] Loaded ${data.length} batches');
 
       return data
@@ -86,20 +84,24 @@ class BatchRemoteDataProvider {
     );
   }
 
-  List<dynamic> _extractBatchList(Object? decoded) {
-    if (decoded is List) return decoded;
+  Future<BatchResponseModel> updateBatch(
+    UpdateBatchRequest request,
+    String batchId,
+  ) async {
+    final uri = Uri.parse(
+      '${ApiConstants.baseUrl}${ResourcesApiConstants.batchById.replaceAll('{batchId}', batchId)}',
+    );
+    final response = await http.patch(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(request.toJson()),
+    );
 
-    if (decoded is Map<String, dynamic>) {
-      final content = decoded['content'];
-      if (content is List) return content;
-
-      final data = decoded['data'];
-      if (data is List) return data;
-
-      final items = decoded['items'];
-      if (items is List) return items;
+    if (response.statusCode == HttpStatus.ok) {
+      return BatchResponseModel.fromJson(jsonDecode(response.body));
     }
-
-    throw FormatException('Unexpected batches response format: $decoded');
+    throw Exception(
+      'Failed to update batch: ${response.statusCode} ${response.body}',
+    );
   }
 }

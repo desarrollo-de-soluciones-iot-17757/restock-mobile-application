@@ -40,7 +40,7 @@ import 'package:restock/resources/presentation/branches/branch_list/bloc/branch_
 import 'package:restock/resources/presentation/branches/branch_status/bloc/branch_status_bloc.dart';
 import 'package:restock/resources/presentation/branches/create_and_edit_branch/blocs/create_and_edit_branch_bloc.dart';
 import 'package:restock/resources/presentation/batches/batch_list/bloc/batch_list_bloc.dart';
-import 'package:restock/resources/presentation/batches/register_batch/bloc/register_batch_bloc.dart';
+import 'package:restock/resources/presentation/batches/create_and_edit_batch/bloc/create_and_edit_batch_bloc.dart';
 import 'package:restock/resources/presentation/custom_supplies/create_and_edit_custom_supply/bloc/create_and_edit_custom_supply_bloc.dart';
 import 'package:restock/resources/presentation/custom_supplies/custom_supply_list/bloc/custom_supply_list_bloc.dart';
 import 'package:restock/shared/infrastructure/database/local_database.dart';
@@ -282,8 +282,8 @@ Future<void> rmDependencies() async {
         BatchListBloc(batchFacadeService: serviceLocator<BatchFacadeService>()),
   );
 
-  serviceLocator.registerFactory<RegisterBatchBloc>(
-    () => RegisterBatchBloc(
+  serviceLocator.registerFactory<CreateAndEditBatchBloc>(
+    () => CreateAndEditBatchBloc(
       batchFacadeService: serviceLocator<BatchFacadeService>(),
       customSupplyFacadeService: serviceLocator<CustomSupplyFacadeService>(),
     ),

@@ -1,6 +1,5 @@
 /// Constants for the resources API endpoints.
 class ResourcesApiConstants {
-
   /// Endpoints for custom supplies.
   static final String customSupplies = 'custom-supplies';
 
@@ -24,4 +23,6 @@ class ResourcesApiConstants {
 
   /// Endpoints for batches.
   static final String batches = 'batches';
+
+  static String batchById = 'batches/{batchId}';
 }

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:restock/resources/domain/entities/branch.dart';
 import 'package:restock/resources/domain/commands/register_branch_command.dart';
@@ -10,7 +11,7 @@ import '../domain/commands/update_branch_status_command.dart';
 /// Facade service to manage branch-related operations.
 class BranchFacadeService {
   /// Constructor for the BranchFacadeService.
-  const BranchFacadeService({
+  BranchFacadeService({
     required this.branchRepository,
     required this.tokenStorage,
   });
@@ -20,6 +21,10 @@ class BranchFacadeService {
 
   /// Storage for managing authentication tokens and related data.
   final TokenStorage tokenStorage;
+
+  final ValueNotifier<String?> _activeBranchId = ValueNotifier<String?>(null);
+
+  ValueListenable<String?> get activeBranchIdListenable => _activeBranchId;
 
   /// Fetches a list of branches associated with the current account ID.
   Future<List<Branch>> getBranchesByAccountId() async {
@@ -111,6 +116,7 @@ class BranchFacadeService {
   /// Saves the locally selected branch.
   Future<void> setActiveBranchId(String branchId) async {
     await tokenStorage.saveBranchId(branchId);
+    _activeBranchId.value = branchId;
   }
 
   /// Ensures there is a selected branch available for branch-scoped features.
@@ -129,6 +135,7 @@ class BranchFacadeService {
 
     if (resolvedBranchId != selectedBranchId) {
       await tokenStorage.saveBranchId(resolvedBranchId);
+      _activeBranchId.value = resolvedBranchId;
     }
 
     return resolvedBranchId;

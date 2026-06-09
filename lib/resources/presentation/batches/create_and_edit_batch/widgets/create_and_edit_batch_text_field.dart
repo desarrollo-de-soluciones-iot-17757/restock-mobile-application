@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class RegisterBatchTextField extends StatelessWidget {
-  const RegisterBatchTextField({
+class CreateAndEditBatchTextField extends StatelessWidget {
+  const CreateAndEditBatchTextField({
     super.key,
     required this.controller,
     required this.label,
