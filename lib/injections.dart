@@ -162,6 +162,15 @@ Future<void> rmDependencies() async {
     ),
   );
 
+  /// Batch
+  serviceLocator.registerLazySingleton<BatchFacadeService>(
+        () => BatchFacadeService(
+      batchRepository: serviceLocator<BatchRepository>(),
+      branchFacadeService: serviceLocator<BranchFacadeService>(),
+      tokenStorage: serviceLocator<TokenStorage>(),
+    ),
+  );
+
   /// Infrastructure layer (Repositories and Data Providers)
 
   /// Custom Supply
@@ -219,6 +228,7 @@ Future<void> rmDependencies() async {
     ),
   );
 
+  /// Batch
   serviceLocator.registerLazySingleton<BatchRemoteDataProvider>(
     () => BatchRemoteDataProvider(http: serviceLocator<AuthHttpClient>()),
   );
@@ -226,14 +236,6 @@ Future<void> rmDependencies() async {
   serviceLocator.registerLazySingleton<BatchRepository>(
     () => BatchRepositoryImpl(
       remoteDataProvider: serviceLocator<BatchRemoteDataProvider>(),
-    ),
-  );
-
-  serviceLocator.registerLazySingleton<BatchFacadeService>(
-    () => BatchFacadeService(
-      batchRepository: serviceLocator<BatchRepository>(),
-      branchFacadeService: serviceLocator<BranchFacadeService>(),
-      tokenStorage: serviceLocator<TokenStorage>(),
     ),
   );
 
@@ -277,6 +279,7 @@ Future<void> rmDependencies() async {
     ),
   );
 
+  /// Batch
   serviceLocator.registerFactory<BatchListBloc>(
     () =>
         BatchListBloc(batchFacadeService: serviceLocator<BatchFacadeService>()),
