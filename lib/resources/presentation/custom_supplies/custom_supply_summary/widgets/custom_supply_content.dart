@@ -65,11 +65,11 @@ class CustomSupplySummaryContent extends StatelessWidget {
           children: [
             _InfoRow(
               label: 'Minimum stock',
-              value: '${_number(supply.minimumStock)} ${supply.unitOfMeasure}',
+              value: _number(supply.minimumStock),
             ),
             _InfoRow(
               label: 'Maximum stock',
-              value: '${_number(supply.maximumStock)} ${supply.unitOfMeasure}',
+              value: _number(supply.maximumStock),
             ),
             _InfoRow(label: 'Unit', value: supply.unitMeasurement),
           ],
