@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:http/http.dart' as pkg_http;
 import 'package:restock/iam/infrastructure/interceptor/auth_http_client.dart';
-import 'package:restock/resources/domain/entities/update_branch_status_command.dart';
+import 'package:restock/resources/domain/commands/update_branch_status_command.dart';
 import 'package:restock/resources/infrastructure/models/branch_response_model.dart';
 import 'package:restock/resources/infrastructure/models/register_branch_request.dart';
 import 'package:restock/resources/infrastructure/models/update_branch_request.dart';

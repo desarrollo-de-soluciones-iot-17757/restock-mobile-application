@@ -1,7 +1,6 @@
 import 'package:restock/resources/domain/entities/branch.dart';
-import 'package:restock/resources/domain/entities/register_branch_command.dart';
-import 'package:restock/resources/domain/entities/update_branch_command.dart';
-import 'package:restock/resources/domain/entities/update_branch_status_command.dart';
+import 'package:restock/resources/domain/commands/register_branch_command.dart';
+import 'package:restock/resources/domain/commands/update_branch_status_command.dart';
 import 'package:restock/resources/domain/repositories/branch_repository.dart';
 import 'package:restock/resources/infrastructure/data_sources/branch_local_data_provider.dart';
 import 'package:restock/resources/infrastructure/data_sources/branch_remote_data_provider.dart';
@@ -9,6 +8,8 @@ import 'package:restock/resources/infrastructure/models/branch_entity.dart';
 import 'package:restock/resources/infrastructure/models/register_branch_request.dart';
 import 'package:restock/resources/infrastructure/models/update_branch_request.dart';
 import 'package:restock/resources/infrastructure/models/update_branch_status_request.dart';
+
+import '../../domain/commands/update_branch_command.dart';
 
 /// Implementation of the BranchRepository that interacts with the BranchRemoteDataProvider.
 class BranchRepositoryImpl implements BranchRepository {

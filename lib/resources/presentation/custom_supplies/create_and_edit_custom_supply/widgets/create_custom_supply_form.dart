@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:restock/resources/presentation/custom_supplies/create_and_edit_custom_supply/bloc/create_and_edit_custom_supply_bloc.dart';
 import 'package:restock/resources/presentation/custom_supplies/create_and_edit_custom_supply/bloc/create_and_edit_custom_supply_event.dart';
 import 'package:restock/resources/presentation/custom_supplies/create_and_edit_custom_supply/bloc/create_and_edit_custom_supply_state.dart';
+import 'package:restock/resources/presentation/custom_supplies/create_and_edit_custom_supply/widgets/custom_supply_editing_notice.dart';
+import 'package:restock/resources/presentation/custom_supplies/create_and_edit_custom_supply/widgets/custom_supply_labeled_text_field.dart';
 import 'package:restock/shared/presentation/widgets/select_field.dart';
 import 'package:restock/resources/presentation/supplies/supply_list/widgets/supply_selector_field.dart';
 import 'package:restock/shared/presentation/utils/enums/bloc_status.dart';
@@ -128,10 +130,23 @@ class _CreateCustomSupplyFormState extends State<CreateCustomSupplyForm> {
                       >(
                         builder: (context, state) {
                           final isLoading = state.status == Status.loading;
+                          final hasInvalidStockRange =
+                              state.submitted &&
+                              int.tryParse(state.minimumStock) != null &&
+                              int.tryParse(state.maximumStock) != null &&
+                              int.parse(state.minimumStock) >=
+                                  int.parse(state.maximumStock);
 
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              if (state.isEditing) ...[
+                                CustomSupplyEditingNotice(
+                                  name: state.name,
+                                  supplyName: state.supply?.name ?? 'Supply',
+                                ),
+                                const SizedBox(height: 14),
+                              ],
                               ImagePickerField(
                                 imageUrl: state.pictureUrl,
                                 enabled: !isLoading,
@@ -140,9 +155,9 @@ class _CreateCustomSupplyFormState extends State<CreateCustomSupplyForm> {
                                 ),
                               ),
                               const SizedBox(height: 16),
-                              RestockTextField(
+                              CustomSupplyLabeledTextField(
                                 controller: _nameController,
-                                hint: 'SUPPLY NAME',
+                                label: 'SUPPLY NAME',
                                 enabled: !isLoading,
                                 errorText: state.nameError,
                                 onChanged: (value) => _dispatch(
@@ -169,9 +184,9 @@ class _CreateCustomSupplyFormState extends State<CreateCustomSupplyForm> {
                               Row(
                                 children: [
                                   Expanded(
-                                    child: RestockTextField(
+                                    child: CustomSupplyLabeledTextField(
                                       controller: _minimumController,
-                                      hint: 'MINIMUM CAPACITY',
+                                      label: 'MINIMUM STOCK',
                                       keyboardType: TextInputType.number,
                                       enabled: !isLoading,
                                       errorText: state.minimumStockError,
@@ -184,9 +199,9 @@ class _CreateCustomSupplyFormState extends State<CreateCustomSupplyForm> {
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(
-                                    child: RestockTextField(
+                                    child: CustomSupplyLabeledTextField(
                                       controller: _maximumController,
-                                      hint: 'MAXIMUM CAPACITY',
+                                      label: 'MAXIMUM STOCK',
                                       keyboardType: TextInputType.number,
                                       enabled: !isLoading,
                                       errorText: state.maximumStockError,
@@ -199,13 +214,24 @@ class _CreateCustomSupplyFormState extends State<CreateCustomSupplyForm> {
                                   ),
                                 ],
                               ),
+                              if (hasInvalidStockRange) ...[
+                                const SizedBox(height: 6),
+                                const Text(
+                                  'Minimum stock must be less than maximum stock.',
+                                  style: TextStyle(
+                                    color: Color(0xFFE24B4A),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
                               const SizedBox(height: 10),
                               Row(
                                 children: [
                                   Expanded(
-                                    child: RestockTextField(
+                                    child: CustomSupplyLabeledTextField(
                                       controller: _priceController,
-                                      hint: 'UNIT PRICE',
+                                      label: 'UNIT PRICE',
                                       keyboardType: TextInputType.number,
                                       enabled: !isLoading,
                                       errorText: state.unitPriceError,

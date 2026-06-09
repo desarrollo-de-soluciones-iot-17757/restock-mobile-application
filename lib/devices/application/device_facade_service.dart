@@ -1,7 +1,7 @@
 import 'package:restock/devices/domain/entities/assign_batch_command.dart';
 import 'package:restock/devices/domain/entities/assign_branch_command.dart';
 import 'package:restock/devices/domain/entities/assign_threshold_command.dart';
-import 'package:restock/devices/domain/entities/batch.dart';
+import 'package:restock/resources/domain/entities/batch.dart';
 import 'package:restock/devices/domain/entities/create_threshold_command.dart';
 import 'package:restock/devices/domain/entities/device.dart';
 import 'package:restock/devices/domain/entities/device_measurement.dart';
@@ -11,7 +11,7 @@ import 'package:restock/devices/domain/entities/register_device_command.dart';
 import 'package:restock/devices/domain/entities/update_device_specifications_command.dart';
 import 'package:restock/devices/domain/entities/update_device_status_command.dart';
 import 'package:restock/devices/domain/entities/update_measurement_command.dart';
-import 'package:restock/devices/domain/repositories/batch_repository.dart';
+import 'package:restock/resources/domain/repositories/batch_repository.dart';
 import 'package:restock/devices/domain/repositories/device_repository.dart';
 import 'package:restock/devices/domain/repositories/device_threshold_repository.dart';
 import 'package:restock/resources/application/branch_facade_service.dart';
@@ -54,7 +54,10 @@ class DeviceFacadeService {
     try {
       final accountId = await tokenStorage.readAccountId();
       if (accountId == null) throw Exception('Account ID not found');
-      return await batchRepository.getBatchesByAccountId(accountId);
+      return await batchRepository.getBatchesByBranchId(
+        accountId: accountId,
+        branchId: await _resolveDefaultBranchId(),
+      );
     } catch (e) {
       throw Exception('Failed to fetch batches: $e');
     }
@@ -110,8 +113,7 @@ class DeviceFacadeService {
 
       // 2. Update measurement — compute grossWeight and set calibrationDate
       final grossWeight = measurement.netWeight + measurement.tareWeight;
-      final calibrationDate =
-          DateTime.now().toIso8601String().substring(0, 10);
+      final calibrationDate = DateTime.now().toIso8601String().substring(0, 10);
       await deviceRepository.updateMeasurement(
         UpdateMeasurementCommand(
           deviceId: deviceId,
@@ -177,11 +179,12 @@ class DeviceFacadeService {
     if (cached != null && cached.isNotEmpty) return cached;
 
     final branches = await branchFacadeService.getBranchesByAccountId();
-    if (branches.isEmpty) {
+    final branchId = await branchFacadeService.resolveActiveBranchId(branches);
+    if (branchId == null) {
       throw Exception(
         'No hay branches creadas. Crea una branch antes de configurar devices.',
       );
     }
-    return branches.first.branchId;
+    return branchId;
   }
 }

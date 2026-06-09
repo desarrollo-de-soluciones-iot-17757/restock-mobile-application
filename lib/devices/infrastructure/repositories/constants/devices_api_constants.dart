@@ -12,9 +12,6 @@ class DevicesApiConstants {
   static String deviceStatus = 'devices/{deviceId}/status';
   static String deviceWithdrawnStock = 'devices/{deviceId}/withdrawn-stock';
 
-  // Batches endpoints
-  static final String batches = 'batches';
-
   // Device thresholds endpoints
   static final String deviceThresholds = 'device-thresholds';
   static String deviceThresholdById = 'device-thresholds/{thresholdId}';

@@ -15,7 +15,12 @@ import 'package:restock/profiles/presentation/profile/profile_page.dart';
 import 'package:restock/resources/application/branch_facade_service.dart';
 import 'package:restock/resources/application/custom_supply_facade_service.dart';
 import 'package:restock/resources/domain/entities/branch.dart';
+import 'package:restock/resources/domain/entities/batch.dart';
 import 'package:restock/resources/domain/entities/custom_supply.dart';
+import 'package:restock/resources/presentation/batches/batch_detail/widgets/batch_detail_screen.dart';
+import 'package:restock/resources/presentation/batches/batch_list/bloc/batch_list_bloc.dart';
+import 'package:restock/resources/presentation/batches/batch_list/bloc/batch_list_event.dart';
+import 'package:restock/resources/presentation/batches/pages/batches_page.dart';
 import 'package:restock/resources/presentation/branches/branch_detail/bloc/branch_detail_bloc.dart';
 import 'package:restock/resources/presentation/branches/branch_detail/bloc/branch_detail_event.dart';
 import 'package:restock/resources/presentation/branches/branch_detail/widgets/branch_detail_screen.dart';
@@ -34,7 +39,7 @@ import 'package:restock/shared/presentation/widgets/settings_section_tabs.dart';
 import '../../presentation/widgets/shell_scaffold.dart';
 
 GoRouter buildRouter(AuthStatusNotifier authNotifier) => GoRouter(
-  initialLocation: '/inventory',
+  initialLocation: '/overview',
   refreshListenable: authNotifier,
   redirect: (context, state) {
     final isLoggedIn = authNotifier.isAuthenticated;
@@ -67,7 +72,7 @@ GoRouter buildRouter(AuthStatusNotifier authNotifier) => GoRouter(
         StatefulShellBranch(
           routes: [
             GoRoute(
-              path: '/inventory',
+              path: '/supplies',
               builder: (context, state) => BlocProvider<CustomSupplyListBloc>(
                 create: (context) =>
                     serviceLocator<CustomSupplyListBloc>()
@@ -106,8 +111,36 @@ GoRouter buildRouter(AuthStatusNotifier authNotifier) => GoRouter(
         StatefulShellBranch(
           routes: [
             GoRoute(
-              path: '/alerts',
-              builder: (_, _) => const SizedBox.shrink(),
+              path: '/inventory',
+              builder: (context, state) => BlocProvider<BatchListBloc>(
+                create: (context) =>
+                    serviceLocator<BatchListBloc>()
+                      ..add(const BatchListStarted()),
+                child: const BatchesPage(),
+              ),
+              routes: [
+                GoRoute(
+                  path: ':batchId',
+                  builder: (context, state) {
+                    final batch = state.extra;
+
+                    return BatchDetailScreen(
+                      batch: batch is Batch
+                          ? batch
+                          : const Batch(
+                              id: '',
+                              code: '',
+                              currentStock: 0,
+                              unitMeasurement: '',
+                              unitMeasurementAbbreviation: '',
+                              customSupplyId: '',
+                              branchId: '',
+                              accountId: '',
+                            ),
+                    );
+                  },
+                ),
+              ],
             ),
           ],
         ),
