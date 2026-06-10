@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:restock/shared/infrastructure/services/auth_status_notifier.dart';
 import './injections.dart' as di;
 import 'package:restock/shared/infrastructure/navigation/router.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 /// The main function is the entry point of the application. It initializes the dependency injection and runs the app.
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await di.setupDependencies();  
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await di.setupDependencies();
   await di.serviceLocator<AuthStatusNotifier>().initialize();
   runApp(const RestockApp());
 }
