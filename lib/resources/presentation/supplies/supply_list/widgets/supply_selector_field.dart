@@ -16,12 +16,14 @@ class SupplySelectorField extends StatelessWidget {
     this.value,
     this.label = 'SUPPLY',
     this.enabled = true,
+    this.errorText,
   });
 
   final Supply? value;
   final ValueChanged<Supply?> onChanged;
   final String label;
   final bool enabled;
+  final String? errorText;
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +35,7 @@ class SupplySelectorField extends StatelessWidget {
         value: value,
         label: label,
         enabled: enabled,
+        errorText: errorText,
         onChanged: onChanged,
       ),
     );
@@ -45,12 +48,14 @@ class _SupplySelectorContent extends StatelessWidget {
     required this.onChanged,
     this.label = 'SUPPLY',
     this.enabled = true,
+    this.errorText,
   });
 
   final Supply? value;
   final ValueChanged<Supply?> onChanged;
   final String label;
   final bool enabled;
+  final String? errorText;
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +64,11 @@ class _SupplySelectorContent extends StatelessWidget {
         final isLoadingSupplies = state.status == Status.loading;
         final hasFailed = state.status == Status.failure;
         final supplies = state.supplies;
+        final selectedSupply = value;
+        final dropdownSupplies =
+            selectedSupply != null && !supplies.contains(selectedSupply)
+            ? [selectedSupply, ...supplies]
+            : supplies;
 
         return DropdownButtonFormField<Supply>(
           initialValue: value,
@@ -70,10 +80,13 @@ class _SupplySelectorContent extends StatelessWidget {
           dropdownColor: Colors.white,
           borderRadius: BorderRadius.circular(12),
           onChanged:
-              enabled && !isLoadingSupplies && !hasFailed && supplies.isNotEmpty
+              enabled &&
+                  !isLoadingSupplies &&
+                  !hasFailed &&
+                  dropdownSupplies.isNotEmpty
               ? onChanged
               : null,
-          selectedItemBuilder: (context) => supplies
+          selectedItemBuilder: (context) => dropdownSupplies
               .map(
                 (supply) =>
                     SelectedSupply(supply: supply, isPlaceholder: false),
@@ -81,6 +94,7 @@ class _SupplySelectorContent extends StatelessWidget {
               .toList(),
           decoration: InputDecoration(
             labelText: label,
+            errorText: errorText,
             labelStyle: const TextStyle(
               color: Color(0xFF5A6472),
               fontSize: 11,
@@ -165,8 +179,15 @@ class _SupplySelectorContent extends StatelessWidget {
                 width: 1.2,
               ),
             ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Color(0xFFE24B4A),
+                width: 1.5,
+              ),
+            ),
           ),
-          items: supplies
+          items: dropdownSupplies
               .map(
                 (supply) => DropdownMenuItem<Supply>(
                   value: supply,

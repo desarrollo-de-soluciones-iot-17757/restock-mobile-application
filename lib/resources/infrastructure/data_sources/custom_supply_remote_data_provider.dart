@@ -6,7 +6,8 @@ import 'package:restock/iam/infrastructure/interceptor/auth_http_client.dart';
 import 'package:restock/resources/infrastructure/models/custom_supply_model.dart';
 import 'package:restock/resources/infrastructure/models/register_custom_supply_request.dart';
 import 'package:restock/resources/infrastructure/models/update_custom_supply_request.dart';
-import 'package:restock/shared/infrastructure/constants/api_constants.dart';
+import 'package:restock/resources/infrastructure/repositories/constants/resources_api_constants.dart';
+import 'package:restock/shared/infrastructure/repositories/constants/api_constants.dart';
 
 /// A data provider for fetching custom supply data from a remote API.
 ///
@@ -26,7 +27,7 @@ class CustomSupplyRemoteDataProvider {
   Future<List<CustomSupplyResponseModel>> getCustomSuppliesByBranchId() async {
     try {
       final Uri uri = Uri.parse(
-        "${ApiConstants.baseUrl}${ApiConstants.customSupplies}",
+        "${ApiConstants.baseUrl}${ResourcesApiConstants.customSupplies}",
       );
 
       final response = await http.get(uri);
@@ -46,12 +47,32 @@ class CustomSupplyRemoteDataProvider {
     }
   }
 
+  Future<CustomSupplyResponseModel> getCustomSupplyById(
+    String customSupplyId,
+  ) async {
+    try {
+      final uri = Uri.parse(
+        '${ApiConstants.baseUrl}${ResourcesApiConstants.customSupplyById.replaceAll('{customSupplyId}', customSupplyId)}',
+      );
+
+      final response = await http.get(uri);
+
+      if (response.statusCode == HttpStatus.ok) {
+        return CustomSupplyResponseModel.fromJson(jsonDecode(response.body));
+      }
+
+      throw Exception('Failed to load custom supply: ${response.statusCode}');
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<CustomSupplyResponseModel> registerCustomSupply(
     RegisterCustomSupplyRequest request,
   ) async {
     try {
       final uri = Uri.parse(
-        '${ApiConstants.baseUrl}${ApiConstants.customSupplies}',
+        '${ApiConstants.baseUrl}${ResourcesApiConstants.customSupplies}',
       );
       final multipartRequest = await request.toMultipartRequest(uri);
 
@@ -82,7 +103,7 @@ class CustomSupplyRemoteDataProvider {
   ) async {
     try {
       final uri = Uri.parse(
-        '${ApiConstants.baseUrl}${ApiConstants.customSupplyById.replaceAll('{customSupplyId}', customSupplyId)}',
+        '${ApiConstants.baseUrl}${ResourcesApiConstants.customSupplyById.replaceAll('{customSupplyId}', customSupplyId)}',
       );
       final multipartRequest = await request.toMultipartRequest(uri);
 
