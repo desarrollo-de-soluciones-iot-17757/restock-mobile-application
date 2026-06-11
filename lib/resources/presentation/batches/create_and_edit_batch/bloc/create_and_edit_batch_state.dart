@@ -33,9 +33,16 @@ class CreateAndEditBatchState {
   bool get isEditing => batchId != null;
 
   bool get isValid =>
+      codeError == null &&
       selectedCustomSupply != null &&
       currentStockError == null &&
       expirationDateError == null;
+
+  String? get codeError {
+    if (!submitted) return null;
+    if (code.trim().isEmpty) return 'Batch name is required';
+    return null;
+  }
 
   String? get supplyError {
     if (!submitted) return null;

@@ -18,6 +18,7 @@ class CreateAndEditBatchBloc
        super(_initialState(batch)) {
     on<CreateAndEditBatchStarted>(_onStarted);
     on<CreateAndEditBatchSupplyChanged>(_onSupplyChanged);
+    on<CreateAndEditBatchCodeChanged>(_onCodeChanged);
     on<CreateAndEditBatchCurrentStockChanged>(_onCurrentStockChanged);
     on<CreateAndEditBatchExpirationDateChanged>(_onExpirationDateChanged);
     on<CreateAndEditBatchSubmitted>(_onSubmitted);
@@ -61,6 +62,13 @@ class CreateAndEditBatchBloc
     emit(state.copyWith(selectedCustomSupply: event.customSupply));
   }
 
+  void _onCodeChanged(
+    CreateAndEditBatchCodeChanged event,
+    Emitter<CreateAndEditBatchState> emit,
+  ) {
+    emit(state.copyWith(code: event.code));
+  }
+
   void _onCurrentStockChanged(
     CreateAndEditBatchCurrentStockChanged event,
     Emitter<CreateAndEditBatchState> emit,
@@ -90,7 +98,7 @@ class CreateAndEditBatchBloc
       if (submittedState.isEditing) {
         await batchFacadeService.updateBatch(
           batchId: submittedState.batchId!,
-          code: submittedState.code,
+          code: submittedState.code.trim(),
           currentStock: double.parse(submittedState.currentStock.trim()),
           customSupplyId: submittedState.selectedCustomSupply!.customSupplyId,
           branchId: submittedState.branchId,
@@ -100,7 +108,7 @@ class CreateAndEditBatchBloc
         );
       } else {
         await batchFacadeService.registerBatch(
-          code: _buildCode(),
+          code: submittedState.code.trim(),
           currentStock: double.parse(submittedState.currentStock.trim()),
           customSupplyId: submittedState.selectedCustomSupply!.customSupplyId,
           expirationDate: submittedState.parsedExpirationDate!
@@ -133,11 +141,6 @@ class CreateAndEditBatchBloc
       (supply) => supply.customSupplyId == _initialBatch.customSupplyId,
       orElse: () => customSupplies.first,
     );
-  }
-
-  String _buildCode() {
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    return 'BATCH-$timestamp';
   }
 }
 

@@ -93,47 +93,106 @@ class _BatchesPageState extends State<BatchesPage> {
                 SliverPadding(
                   padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
                   sliver: SliverList.list(
-                    children: [
-                      const Text(
-                        'Batches',
-                        style: TextStyle(
-                          color: Color(0xFF0F1B2A),
-                          fontSize: 28,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                      const SizedBox(height: 18),
-                      BatchSearchField(
-                        onChanged: (query) => context.read<BatchListBloc>().add(
-                          BatchSearchChanged(query),
-                        ),
-                      ),
-                      const SizedBox(height: 18),
-                      BatchActionBar(
-                        onAddBatch: () => _openCreateAndEditBatchSheet(context),
-                        onCustomSupplies: () => context.go('/supplies'),
-                      ),
-                      const SizedBox(height: 18),
-                      BatchOverviewMetrics(
-                        totalActiveBatches: state.batches.length,
-                        nearExpiryCount: state.nearExpiryCount,
-                      ),
-                      const SizedBox(height: 16),
-                      BatchFilterRow(
-                        stockFilter: state.stockFilter,
-                        onStockFilterChanged: (filter) => context
-                            .read<BatchListBloc>()
-                            .add(BatchStockFilterChanged(filter)),
-                      ),
-                      const SizedBox(height: 20),
-                      _BatchListBody(state: state),
-                    ],
+                    children: state.requiresBranchSelection
+                        ? const [_BranchSelectionRequiredMessage()]
+                        : [
+                            const Text(
+                              'Batches',
+                              style: TextStyle(
+                                color: Color(0xFF0F1B2A),
+                                fontSize: 28,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                            const SizedBox(height: 18),
+                            BatchSearchField(
+                              onChanged: (query) => context
+                                  .read<BatchListBloc>()
+                                  .add(BatchSearchChanged(query)),
+                            ),
+                            const SizedBox(height: 18),
+                            BatchActionBar(
+                              onAddBatch: () =>
+                                  _openCreateAndEditBatchSheet(context),
+                              onCustomSupplies: () => context.go('/supplies'),
+                            ),
+                            const SizedBox(height: 18),
+                            BatchOverviewMetrics(
+                              totalActiveBatches: state.batches.length,
+                              nearExpiryCount: state.nearExpiryCount,
+                            ),
+                            const SizedBox(height: 16),
+                            BatchFilterRow(
+                              stockFilter: state.stockFilter,
+                              onStockFilterChanged: (filter) => context
+                                  .read<BatchListBloc>()
+                                  .add(BatchStockFilterChanged(filter)),
+                            ),
+                            const SizedBox(height: 20),
+                            _BatchListBody(state: state),
+                          ],
                   ),
                 ),
               ],
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class _BranchSelectionRequiredMessage extends StatelessWidget {
+  const _BranchSelectionRequiredMessage();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: MediaQuery.sizeOf(context).height * 0.62,
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                color: const Color(0xFFE8FFF6),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFFB7F4DD)),
+              ),
+              child: const Icon(
+                Icons.storefront_outlined,
+                color: Color(0xFF007A4D),
+                size: 34,
+              ),
+            ),
+            const SizedBox(height: 18),
+            const Text(
+              'No active branch selected',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Color(0xFF0F1B2A),
+                fontSize: 20,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 18),
+              child: Text(
+                'Select a branch in Settings to view inventory.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Color(0xFF667085),
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  height: 1.35,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -19,6 +19,7 @@ class CreateAndEditBatchForm extends StatefulWidget {
 }
 
 class _CreateAndEditBatchFormState extends State<CreateAndEditBatchForm> {
+  final _codeController = TextEditingController();
   final _stockController = TextEditingController(text: '0');
   final _expirationDateController = TextEditingController();
 
@@ -29,6 +30,7 @@ class _CreateAndEditBatchFormState extends State<CreateAndEditBatchForm> {
   void initState() {
     super.initState();
     final state = context.read<CreateAndEditBatchBloc>().state;
+    _codeController.text = state.code;
     _stockController.text = state.currentStock.isEmpty
         ? '0'
         : state.currentStock;
@@ -41,6 +43,7 @@ class _CreateAndEditBatchFormState extends State<CreateAndEditBatchForm> {
 
   @override
   void dispose() {
+    _codeController.dispose();
     _stockController.dispose();
     _expirationDateController.dispose();
     super.dispose();
@@ -118,6 +121,16 @@ class _CreateAndEditBatchFormState extends State<CreateAndEditBatchForm> {
                           padding: const EdgeInsets.symmetric(horizontal: 22),
                           child: Column(
                             children: [
+                              CreateAndEditBatchTextField(
+                                controller: _codeController,
+                                label: 'BATCH NAME',
+                                enabled: !isLoading,
+                                errorText: state.codeError,
+                                onChanged: (value) => _dispatch(
+                                  CreateAndEditBatchCodeChanged(value),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
                               CreateAndEditBatchSupplyField(
                                 supplies: state.customSupplies,
                                 value: state.selectedCustomSupply,

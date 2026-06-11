@@ -1,5 +1,4 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter/foundation.dart';
 import 'package:restock/resources/application/batch_facade_service.dart';
 import 'package:restock/resources/presentation/batches/batch_list/bloc/batch_list_event.dart';
 import 'package:restock/resources/presentation/batches/batch_list/bloc/batch_list_state.dart';
@@ -25,7 +24,6 @@ class BatchListBloc extends Bloc<BatchListEvent, BatchListState> {
       final batches = await batchFacadeService.getBatchesForActiveBranch();
       emit(state.copyWith(status: Status.success, batches: batches));
     } catch (e) {
-      debugPrint('[BatchListBloc] Failed to load batches: $e');
       emit(state.copyWith(status: Status.failure, message: e.toString()));
     }
   }
