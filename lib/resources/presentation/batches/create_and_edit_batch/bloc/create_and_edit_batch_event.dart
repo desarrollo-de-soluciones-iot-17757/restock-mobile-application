@@ -14,6 +14,12 @@ class CreateAndEditBatchSupplyChanged extends CreateAndEditBatchEvent {
   final CustomSupply customSupply;
 }
 
+class CreateAndEditBatchCodeChanged extends CreateAndEditBatchEvent {
+  const CreateAndEditBatchCodeChanged(this.code);
+
+  final String code;
+}
+
 class CreateAndEditBatchCurrentStockChanged extends CreateAndEditBatchEvent {
   const CreateAndEditBatchCurrentStockChanged(this.currentStock);
 

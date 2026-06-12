@@ -43,6 +43,10 @@ class BatchListState {
 
   bool get isSearching => searchQuery.trim().isNotEmpty;
 
+  bool get requiresBranchSelection =>
+      status == Status.failure &&
+      (message?.contains('Active branch ID not found') ?? false);
+
   int get nearExpiryCount {
     final now = DateTime.now();
     final limit = now.add(const Duration(days: 30));
