@@ -1,5 +1,8 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
+import 'package:restock/communications/application/communications_facade_service.dart';
+import 'package:restock/communications/infrastructure/data_sources/push_subscription_remote_data_provider.dart';
+import 'package:restock/communications/infrastructure/notifications/push_notifications_service.dart';
 import 'package:restock/devices/application/device_facade_service.dart';
 import 'package:restock/devices/application/device_threshold_facade_service.dart';
 import 'package:restock/resources/domain/repositories/batch_repository.dart';
@@ -93,6 +96,8 @@ Future<void> iamDependencies() async {
       authRepository: serviceLocator<AuthRepository>(),
       tokenStorage: serviceLocator<TokenStorage>(),
       authStatusNotifier: serviceLocator<AuthStatusNotifier>(),
+      communicationsFacadeService:
+          serviceLocator<CommunicationsFacadeService>(),
     ),
   );
 
@@ -164,7 +169,7 @@ Future<void> rmDependencies() async {
 
   /// Batch
   serviceLocator.registerLazySingleton<BatchFacadeService>(
-        () => BatchFacadeService(
+    () => BatchFacadeService(
       batchRepository: serviceLocator<BatchRepository>(),
       branchFacadeService: serviceLocator<BranchFacadeService>(),
       tokenStorage: serviceLocator<TokenStorage>(),
@@ -295,8 +300,24 @@ Future<void> rmDependencies() async {
 
 /// Configures the dependencies for the Communications context.
 Future<void> communicationsDependencies() async {
-  // For example:
-  // serviceLocator.registerLazySingleton<YourCommunicationService>(() => YourCommunicationServiceImpl());
+  serviceLocator.registerLazySingleton<PushNotificationService>(
+    () => PushNotificationService(),
+  );
+
+  serviceLocator.registerLazySingleton<PushSubscriptionRemoteDataProvider>(
+    () => PushSubscriptionRemoteDataProvider(
+      http: serviceLocator<AuthHttpClient>(),
+    ),
+  );
+
+  serviceLocator.registerLazySingleton<CommunicationsFacadeService>(
+    () => CommunicationsFacadeService(
+      pushNotificationsService: serviceLocator<PushNotificationService>(),
+      pushSubscriptionRemoteDataProvider:
+          serviceLocator<PushSubscriptionRemoteDataProvider>(),
+      tokenStorage: serviceLocator<TokenStorage>(),
+    ),
+  );
 }
 
 /// Configures the dependencies for the Subscriptions context.

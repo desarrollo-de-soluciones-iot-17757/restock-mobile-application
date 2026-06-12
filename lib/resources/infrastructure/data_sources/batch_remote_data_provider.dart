@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:restock/iam/infrastructure/interceptor/auth_http_client.dart';
 import 'package:restock/resources/infrastructure/models/register_batch_request.dart';
 import 'package:restock/resources/infrastructure/models/update_batch_request.dart';
@@ -30,24 +29,15 @@ class BatchRemoteDataProvider {
       '${ApiConstants.baseUrl}${ResourcesApiConstants.batches}',
     ).replace(queryParameters: queryParameters);
 
-    debugPrint('[BatchRemoteDataProvider] GET $uri');
     final response = await http.get(uri);
-    debugPrint(
-      '[BatchRemoteDataProvider] Response status: ${response.statusCode}',
-    );
 
     if (response.statusCode == HttpStatus.ok) {
       final data = jsonDecode(response.body) as List;
-      debugPrint('[BatchRemoteDataProvider] Loaded ${data.length} batches');
 
       return data
           .map((j) => BatchResponseModel.fromJson(Map<String, dynamic>.from(j)))
           .toList();
     }
-
-    debugPrint(
-      '[BatchRemoteDataProvider] Response error body: ${response.body}',
-    );
     throw Exception(
       'Failed to load batches: ${response.statusCode} ${response.body}',
     );
@@ -61,24 +51,16 @@ class BatchRemoteDataProvider {
       '${ApiConstants.baseUrl}${ResourcesApiConstants.batches}',
     ).replace(queryParameters: {'accountId': accountId});
 
-    debugPrint('[BatchRemoteDataProvider] POST $uri');
     final response = await http.post(
       uri,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(request.toJson()),
-    );
-    debugPrint(
-      '[BatchRemoteDataProvider] Response status: ${response.statusCode}',
     );
 
     if (response.statusCode == HttpStatus.created ||
         response.statusCode == HttpStatus.ok) {
       return BatchResponseModel.fromJson(jsonDecode(response.body));
     }
-
-    debugPrint(
-      '[BatchRemoteDataProvider] Response error body: ${response.body}',
-    );
     throw Exception(
       'Failed to register batch: ${response.statusCode} ${response.body}',
     );
