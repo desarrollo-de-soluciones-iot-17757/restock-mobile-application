@@ -1,6 +1,8 @@
 import 'package:restock/devices/domain/entities/assign_threshold_command.dart';
 import 'package:restock/devices/domain/entities/create_threshold_command.dart';
+import 'package:restock/devices/domain/entities/device_status.dart';
 import 'package:restock/devices/domain/entities/device_threshold.dart';
+import 'package:restock/devices/domain/entities/update_device_status_command.dart';
 import 'package:restock/devices/domain/repositories/device_repository.dart';
 import 'package:restock/devices/domain/repositories/device_threshold_repository.dart';
 import 'package:restock/shared/infrastructure/storage/token_storage.dart';
@@ -35,6 +37,7 @@ class DeviceThresholdFacadeService {
       final threshold = await thresholdRepository.createThreshold(
         CreateThresholdCommand(
           accountId: accountId,
+          deviceId: deviceId,
           customSupplyId: customSupplyId,
           minStock: minStock,
           maxStock: maxStock,
@@ -51,6 +54,13 @@ class DeviceThresholdFacadeService {
         AssignThresholdCommand(
           deviceId: deviceId,
           thresholdId: threshold.thresholdId,
+        ),
+      );
+
+      await deviceRepository.updateStatus(
+        UpdateDeviceStatusCommand(
+          deviceId: deviceId,
+          status: DeviceStatus.configured,
         ),
       );
 

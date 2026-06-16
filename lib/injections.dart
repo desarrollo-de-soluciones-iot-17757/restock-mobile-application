@@ -286,8 +286,10 @@ Future<void> rmDependencies() async {
 
   /// Batch
   serviceLocator.registerFactory<BatchListBloc>(
-    () =>
-        BatchListBloc(batchFacadeService: serviceLocator<BatchFacadeService>()),
+    () => BatchListBloc(
+      batchFacadeService: serviceLocator<BatchFacadeService>(),
+      customSupplyFacadeService: serviceLocator<CustomSupplyFacadeService>(),
+    ),
   );
 
   serviceLocator.registerFactory<CreateAndEditBatchBloc>(
