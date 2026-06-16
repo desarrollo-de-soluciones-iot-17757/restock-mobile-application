@@ -71,7 +71,9 @@ class _BatchesPageState extends State<BatchesPage> {
     );
 
     if (created == true) {
-      batchListBloc.add(const BatchListStarted());
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        batchListBloc.add(const BatchListStarted());
+      });
     }
   }
 
@@ -124,9 +126,15 @@ class _BatchesPageState extends State<BatchesPage> {
                             const SizedBox(height: 16),
                             BatchFilterRow(
                               stockFilter: state.stockFilter,
+                              categoryLabel: state.selectedCategoryLabel,
+                              categoryOptions: state.categoryOptions,
+                              selectedCategoryKey: state.categoryFilterKey,
                               onStockFilterChanged: (filter) => context
                                   .read<BatchListBloc>()
                                   .add(BatchStockFilterChanged(filter)),
+                              onCategoryFilterChanged: (categoryKey) => context
+                                  .read<BatchListBloc>()
+                                  .add(BatchCategoryFilterChanged(categoryKey)),
                             ),
                             const SizedBox(height: 20),
                             _BatchListBody(state: state),
@@ -228,7 +236,7 @@ class _BatchListBody extends StatelessWidget {
       ),
       Status.success => BatchListView(
         batches: state.filteredBatches,
-        isSearching: state.isSearching,
+        isSearching: state.isFiltering,
       ),
     };
   }
