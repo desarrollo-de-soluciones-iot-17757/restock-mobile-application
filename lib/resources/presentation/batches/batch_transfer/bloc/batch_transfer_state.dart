@@ -38,8 +38,9 @@ class BatchTransferState {
   bool get isLoading => status == Status.loading;
 
   /// The form is valid if a batch and a destination branch are selected, and there are no validation errors for the quantity or reason.
-  bool get isValid => selectedBatch != null &&
-      destinationBranch != null &&
+  bool get isValid =>
+      batchError == null &&
+      branchError == null &&
       transferredQuantityError == null &&
       reasonError == null;
 
@@ -48,6 +49,20 @@ class BatchTransferState {
     if (!submitted) return null;
     if (quantityToTransfer > selectedBatch!.currentStock) return 'Transfer quantity exceeds current stock';
     if (quantityToTransfer <= 0) return 'Enter a valid quantity';
+    return null;
+  }
+
+  /// The destination branch must be selected for the transfer to be valid.
+  String? get branchError {
+    if (!submitted) return null;
+    if (destinationBranch == null) return 'Select a destination zone';
+    return null;
+  }
+
+  /// The batch must be selected for the transfer to be valid.
+  String? get batchError {
+    if (!submitted) return null;
+    if (selectedBatch == null) return 'Select a batch stock to transfer';
     return null;
   }
 
