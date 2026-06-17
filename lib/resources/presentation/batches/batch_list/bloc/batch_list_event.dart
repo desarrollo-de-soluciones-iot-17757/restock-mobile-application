@@ -18,4 +18,10 @@ class BatchStockFilterChanged extends BatchListEvent {
   final BatchStockFilter filter;
 }
 
+class BatchCategoryFilterChanged extends BatchListEvent {
+  const BatchCategoryFilterChanged(this.categoryKey);
+
+  final String? categoryKey;
+}
+
 enum BatchStockFilter { any, low, available }

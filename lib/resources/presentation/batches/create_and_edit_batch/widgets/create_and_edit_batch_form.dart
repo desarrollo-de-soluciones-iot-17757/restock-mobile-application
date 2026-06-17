@@ -5,7 +5,7 @@ import 'package:restock/resources/presentation/batches/create_and_edit_batch/blo
 import 'package:restock/resources/presentation/batches/create_and_edit_batch/bloc/create_and_edit_batch_state.dart';
 import 'package:restock/resources/presentation/batches/create_and_edit_batch/widgets/create_and_edit_batch_date_field.dart';
 import 'package:restock/resources/presentation/batches/create_and_edit_batch/widgets/create_and_edit_batch_supply_field.dart';
-import 'package:restock/resources/presentation/batches/create_and_edit_batch/widgets/create_and_edit_batch_text_field.dart';
+import 'package:restock/shared/presentation/widgets/batch_form_text_field.dart';
 import 'package:restock/shared/presentation/utils/enums/bloc_status.dart';
 import 'package:restock/shared/presentation/widgets/restok_button.dart';
 
@@ -121,7 +121,7 @@ class _CreateAndEditBatchFormState extends State<CreateAndEditBatchForm> {
                           padding: const EdgeInsets.symmetric(horizontal: 22),
                           child: Column(
                             children: [
-                              CreateAndEditBatchTextField(
+                              BatchTextField(
                                 controller: _codeController,
                                 label: 'BATCH NAME',
                                 enabled: !isLoading,
@@ -151,7 +151,7 @@ class _CreateAndEditBatchFormState extends State<CreateAndEditBatchForm> {
                                 ),
                               ],
                               const SizedBox(height: 12),
-                              CreateAndEditBatchTextField(
+                              BatchTextField(
                                 controller: _stockController,
                                 label: state.isEditing
                                     ? 'STOCK (UNITS)'
