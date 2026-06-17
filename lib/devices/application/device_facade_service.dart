@@ -1,8 +1,6 @@
 import 'package:restock/devices/domain/entities/assign_batch_command.dart';
 import 'package:restock/devices/domain/entities/assign_branch_command.dart';
-import 'package:restock/devices/domain/entities/assign_threshold_command.dart';
 import 'package:restock/resources/domain/entities/batch.dart';
-import 'package:restock/devices/domain/entities/create_threshold_command.dart';
 import 'package:restock/devices/domain/entities/device.dart';
 import 'package:restock/devices/domain/entities/device_measurement.dart';
 import 'package:restock/devices/domain/entities/device_specifications.dart';
@@ -63,6 +61,15 @@ class DeviceFacadeService {
     }
   }
 
+  Future<Batch> getAssignedBatch(String batchId) async {
+    try {
+      final batches = await getBatchesForAssignment();
+      return batches.firstWhere((batch) => batch.id == batchId);
+    } catch (e) {
+      throw Exception('Failed to resolve assigned batch: $e');
+    }
+  }
+
   Future<Device> registerDevice({
     required String macAddress,
     required String description,
@@ -94,18 +101,12 @@ class DeviceFacadeService {
     }
   }
 
-  Future<Device> completeOnboarding({
+  Future<Device> assignBatchForOnboarding({
     required String deviceId,
     required String batchId,
-    required String customSupplyId,
-    required double minStock,
-    required double maxStock,
     required DeviceMeasurement measurement,
   }) async {
     try {
-      final accountId = await tokenStorage.readAccountId();
-      if (accountId == null) throw Exception('Account ID not found');
-
       // 1. Assign batch
       await deviceRepository.assignBatch(
         AssignBatchCommand(deviceId: deviceId, batchId: batchId),
@@ -142,35 +143,10 @@ class DeviceFacadeService {
         AssignBranchCommand(deviceId: deviceId, branchId: branchId),
       );
 
-      // 5. Create default threshold silently and assign it
-      final threshold = await thresholdRepository.createThreshold(
-        CreateThresholdCommand(
-          accountId: accountId,
-          customSupplyId: customSupplyId,
-          minStock: minStock,
-          maxStock: maxStock,
-          anomalyThreshold: 1.0,
-        ),
-      );
-      await deviceRepository.assignThreshold(
-        AssignThresholdCommand(
-          deviceId: deviceId,
-          thresholdId: threshold.thresholdId,
-        ),
-      );
-
-      // 6. Set status to CONFIGURED
-      await deviceRepository.updateStatus(
-        UpdateDeviceStatusCommand(
-          deviceId: deviceId,
-          status: DeviceStatus.configured,
-        ),
-      );
-
-      // 7. Return updated device
+      // 5. Return updated device. Thresholds will complete onboarding later.
       return await deviceRepository.getDeviceById(deviceId);
     } catch (e) {
-      throw Exception('Failed to complete onboarding: $e');
+      throw Exception('Failed to assign batch for onboarding: $e');
     }
   }
 

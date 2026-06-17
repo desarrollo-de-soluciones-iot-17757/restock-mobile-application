@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:restock/devices/infrastructure/models/assign_batch_request.dart';
 import 'package:restock/devices/infrastructure/models/assign_branch_request.dart';
+import 'package:restock/devices/infrastructure/models/assign_threshold_request.dart';
 import 'package:restock/devices/infrastructure/models/device_response_model.dart';
 import 'package:restock/devices/infrastructure/models/register_device_request.dart';
 import 'package:restock/devices/infrastructure/models/update_measurement_request.dart';
@@ -97,7 +98,9 @@ class DeviceRemoteDataProvider {
           jsonDecode(response.body) as Map<String, dynamic>,
         );
       }
-      throw Exception('Failed to update specifications: ${response.statusCode}');
+      throw Exception(
+        'Failed to update specifications: ${response.statusCode}',
+      );
     } catch (e) {
       rethrow;
     }
@@ -153,7 +156,7 @@ class DeviceRemoteDataProvider {
 
   Future<DeviceResponseModel> assignThreshold(
     String deviceId,
-    String thresholdId,
+    AssignThresholdRequest request,
   ) async {
     try {
       final uri = Uri.parse(
@@ -162,9 +165,13 @@ class DeviceRemoteDataProvider {
       final response = await http.put(
         uri,
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'supplyThresholdId': thresholdId}),
+        body: jsonEncode(request.toJson()),
       );
-      if (response.statusCode == HttpStatus.ok) {
+      if (response.statusCode == HttpStatus.ok ||
+          response.statusCode == HttpStatus.noContent) {
+        if (response.body.isEmpty) {
+          return getDeviceById(deviceId);
+        }
         return DeviceResponseModel.fromJson(
           jsonDecode(response.body) as Map<String, dynamic>,
         );
