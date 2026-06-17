@@ -38,6 +38,7 @@ import 'package:restock/resources/infrastructure/data_sources/supply_remote_data
 import 'package:restock/resources/infrastructure/repositories/branch_repository_impl.dart';
 import 'package:restock/resources/infrastructure/repositories/custom_supply_repository_impl.dart';
 import 'package:restock/resources/infrastructure/repositories/supply_repository_impl.dart';
+import 'package:restock/resources/presentation/batches/batch_transfer/bloc/batch_transfer_bloc.dart';
 import 'package:restock/resources/presentation/branches/branch_detail/bloc/branch_detail_bloc.dart';
 import 'package:restock/resources/presentation/branches/branch_list/bloc/branch_list_bloc.dart';
 import 'package:restock/resources/presentation/branches/branch_status/bloc/branch_status_bloc.dart';
@@ -296,6 +297,13 @@ Future<void> rmDependencies() async {
     () => CreateAndEditBatchBloc(
       batchFacadeService: serviceLocator<BatchFacadeService>(),
       customSupplyFacadeService: serviceLocator<CustomSupplyFacadeService>(),
+    ),
+  );
+
+  serviceLocator.registerFactory<BatchTransferBloc>(
+        () => BatchTransferBloc(
+            branchFacadeService: serviceLocator<BranchFacadeService>(),
+            batchFacadeService: serviceLocator<BatchFacadeService>()
     ),
   );
 }

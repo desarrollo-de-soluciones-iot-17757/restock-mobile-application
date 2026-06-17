@@ -1,4 +1,5 @@
 import 'package:restock/resources/domain/commands/register_batch_command.dart';
+import 'package:restock/resources/domain/commands/transfer_batch_command.dart';
 import 'package:restock/resources/domain/commands/update_batch_command.dart';
 import 'package:restock/resources/domain/entities/batch.dart';
 import 'package:restock/resources/domain/repositories/batch_repository.dart';
@@ -101,6 +102,31 @@ class BatchFacadeService {
       return await batchRepository.updateBatch(command);
     } catch (e) {
       throw Exception('Failed to update batch: $e');
+    }
+  }
+
+  /// Transfers a batch of items from one branch to another.
+  /// This method takes the batch identifier, target branch identifier, quantity to be transferred, unit of measurement, and the reason for the transfer as parameters. It constructs a [TransferBatchCommand] with the provided information and calls the [batchRepository] to perform the transfer operation.
+  /// If any error occurs during the transfer process, it catches the exception and throws a new exception with a descriptive error message.
+  Future<Batch> transferBatch({
+    required String batchId,
+    required String targetBranchId,
+    required double quantity,
+    required String unitMeasurement,
+    required String reason,
+  }) async {
+    try {
+      final command = TransferBatchCommand(
+          batchId: batchId,
+          targetBranchId: targetBranchId,
+          quantity: quantity,
+          unitMeasurement: unitMeasurement,
+          reason: reason
+      );
+
+      return await batchRepository.transferBatch(command);
+    } catch (e) {
+      throw Exception('Failed to transfer batch: $e');
     }
   }
 

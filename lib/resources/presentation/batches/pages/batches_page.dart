@@ -11,6 +11,9 @@ import 'package:restock/resources/presentation/batches/batch_list/widgets/batch_
 import 'package:restock/resources/presentation/batches/batch_list/widgets/batch_list_view.dart';
 import 'package:restock/resources/presentation/batches/batch_list/widgets/batch_overview_metrics.dart';
 import 'package:restock/resources/presentation/batches/batch_list/widgets/batch_search_field.dart';
+import 'package:restock/resources/presentation/batches/batch_transfer/bloc/batch_transfer_bloc.dart';
+import 'package:restock/resources/presentation/batches/batch_transfer/bloc/batch_transfer_event.dart';
+import 'package:restock/resources/presentation/batches/batch_transfer/widgets/batch_transfer_form.dart';
 import 'package:restock/resources/presentation/batches/create_and_edit_batch/bloc/create_and_edit_batch_bloc.dart';
 import 'package:restock/resources/presentation/batches/create_and_edit_batch/bloc/create_and_edit_batch_event.dart';
 import 'package:restock/resources/presentation/batches/create_and_edit_batch/widgets/create_and_edit_batch_form.dart';
@@ -49,6 +52,7 @@ class _BatchesPageState extends State<BatchesPage> {
     context.read<BatchListBloc>().add(const BatchListStarted());
   }
 
+  /// Opens the create/edit batch form in a bottom sheet. If a batch is successfully created or edited, the batch list is refreshed.
   Future<void> _openCreateAndEditBatchSheet(BuildContext context) async {
     final batchListBloc = context.read<BatchListBloc>();
 
@@ -74,6 +78,33 @@ class _BatchesPageState extends State<BatchesPage> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         batchListBloc.add(const BatchListStarted());
       });
+    }
+  }
+
+  /// Opens the batch transfer form in a bottom sheet. If a transfer is successfully created, the batch list is refreshed.
+  Future<void> _openTransferBatchSheet(BuildContext context) async {
+    final batchListBloc = context.read<BatchListBloc>();
+
+    final created = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => BlocProvider<BatchTransferBloc>(
+        create: (_) =>
+          serviceLocator<BatchTransferBloc>()
+            ..add(const BatchTransferStarted()),
+        child: Padding(
+          padding: MediaQuery.viewInsetsOf(context),
+          child: const BatchTransferForm(),
+        ),
+      ),
+    );
+
+    if (created == true) {
+      batchListBloc.add(const BatchListStarted());
     }
   }
 
@@ -116,7 +147,10 @@ class _BatchesPageState extends State<BatchesPage> {
                             BatchActionBar(
                               onAddBatch: () =>
                                   _openCreateAndEditBatchSheet(context),
-                              onCustomSupplies: () => context.go('/supplies'),
+                              onTransfer: () =>
+                                  _openTransferBatchSheet(context),
+                              onCustomSupplies: () =>
+                                  context.go('/supplies'),
                             ),
                             const SizedBox(height: 18),
                             BatchOverviewMetrics(

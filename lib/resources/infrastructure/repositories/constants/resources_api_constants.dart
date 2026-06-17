@@ -25,4 +25,6 @@ class ResourcesApiConstants {
   static final String batches = 'batches';
 
   static String batchById = 'batches/{batchId}';
+
+  static String transferBatchById = 'batches/{batchId}/transfer';
 }
