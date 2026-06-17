@@ -4,7 +4,6 @@ import 'package:restock/shared/presentation/utils/enums/bloc_status.dart';
 
 /// The BatchTransferState class represents the state of the batch transfer form, including the list of batches and branches, the selected batch and destination branch, the quantity to transfer, the reason for transfer, and any validation errors. It also includes computed properties to determine if the form is loading or valid based on the current state.
 class BatchTransferState {
-
   /// The constructor initializes the state with default values, allowing for optional parameters to be provided when creating an instance of BatchTransferState. This design enables easy state management in a Bloc or Cubit, where the state can be updated based on user interactions and data fetching results.
   const BatchTransferState({
     this.status = Status.initial,
@@ -47,7 +46,10 @@ class BatchTransferState {
   /// The quantity to transfer must be greater than 0 and cannot exceed the current stock of the selected batch.
   String? get transferredQuantityError {
     if (!submitted) return null;
-    if (quantityToTransfer > selectedBatch!.currentStock) return 'Transfer quantity exceeds current stock';
+    if (selectedBatch == null) return null;
+    if (quantityToTransfer > selectedBatch!.currentStock) {
+      return 'Transfer quantity exceeds current stock';
+    }
     if (quantityToTransfer <= 0) return 'Enter a valid quantity';
     return null;
   }
@@ -69,7 +71,9 @@ class BatchTransferState {
   /// The reason is optional, but if provided, it cannot be empty or just whitespace.
   String? get reasonError {
     if (!submitted) return null;
-    if (reason!.isNotEmpty && reason!.trim().isEmpty) return 'When provided, reason cannot be empty';
+    if (reason != null && reason!.isNotEmpty && reason!.trim().isEmpty) {
+      return 'When provided, reason cannot be empty';
+    }
     return null;
   }
 
