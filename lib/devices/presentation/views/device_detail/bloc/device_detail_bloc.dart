@@ -13,6 +13,7 @@ class DeviceDetailBloc extends Bloc<DeviceDetailEvent, DeviceDetailState> {
   }) : super(const DeviceDetailState()) {
     on<DeviceDetailFetched>(_onFetched);
     on<BatchAssigned>(_onBatchAssigned);
+    on<DeviceCalibrated>(_onDeviceCalibrated);
     on<DeviceUnlinked>(_onDeviceUnlinked);
     on<ThresholdsSaved>(_onThresholdsSaved);
   }
@@ -57,7 +58,6 @@ class DeviceDetailBloc extends Bloc<DeviceDetailEvent, DeviceDetailState> {
       final updated = await deviceFacadeService.assignBatchForOnboarding(
         deviceId: deviceId,
         batchId: event.batchId,
-        measurement: event.measurement,
       );
       var newState = state.copyWith(
         status: Status.success,
@@ -73,6 +73,31 @@ class DeviceDetailBloc extends Bloc<DeviceDetailEvent, DeviceDetailState> {
         } catch (_) {}
       }
       emit(newState);
+    } catch (e) {
+      emit(state.copyWith(isSubmitting: false, errorMessage: e.toString()));
+    }
+  }
+
+  Future<void> _onDeviceCalibrated(
+    DeviceCalibrated event,
+    Emitter<DeviceDetailState> emit,
+  ) async {
+    final deviceId = state.device?.deviceId;
+    if (deviceId == null) return;
+
+    emit(state.copyWith(isSubmitting: true));
+    try {
+      final updated = await deviceFacadeService.calibrateDevice(
+        deviceId: deviceId,
+        measurement: event.measurement,
+      );
+      emit(
+        state.copyWith(
+          status: Status.success,
+          device: updated,
+          isSubmitting: false,
+        ),
+      );
     } catch (e) {
       emit(state.copyWith(isSubmitting: false, errorMessage: e.toString()));
     }

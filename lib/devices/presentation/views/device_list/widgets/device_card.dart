@@ -83,16 +83,22 @@ class _StatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final (bg, border, text, label) = switch (status) {
       DeviceStatus.registered => (
+        DevicesTheme.offlineBg,
+        DevicesTheme.offlineBorder,
+        DevicesTheme.offlineText,
+        'REGISTERED',
+      ),
+      DeviceStatus.configured => (
         DevicesTheme.warmBg,
         DevicesTheme.warmBorder,
         DevicesTheme.warmText,
-        'REGISTERED',
+        'CONFIGURED',
       ),
-      DeviceStatus.configured || DeviceStatus.active => (
+      DeviceStatus.calibrated || DeviceStatus.active => (
         DevicesTheme.healthyBg,
         DevicesTheme.healthyBorder,
         DevicesTheme.healthyText,
-        'CONFIGURED',
+        status == DeviceStatus.calibrated ? 'CALIBRATED' : 'ACTIVE',
       ),
       DeviceStatus.inactive => (
         DevicesTheme.offlineBg,
