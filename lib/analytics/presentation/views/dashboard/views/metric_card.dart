@@ -24,8 +24,8 @@ class MetricCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DashboardCard(
-      height: 196,
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 22),
+      height: 216,
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,6 +83,8 @@ class MetricCard extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             caption,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               color: green,
               fontSize: 17,

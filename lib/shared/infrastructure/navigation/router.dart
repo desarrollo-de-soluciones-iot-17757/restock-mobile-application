@@ -1,6 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:restock/analytics/presentation/views/dashboard/bloc/dashboard_bloc.dart';
+import 'package:restock/analytics/presentation/views/dashboard/bloc/dashboard_event.dart';
+import 'package:restock/analytics/presentation/views/dashboard/pages/dashboard_screen.dart';
 import 'package:restock/devices/presentation/views/device_detail/bloc/device_detail_bloc.dart';
 import 'package:restock/devices/presentation/views/device_detail/bloc/device_detail_event.dart';
 import 'package:restock/devices/presentation/views/device_detail/device_detail_screen.dart';
@@ -65,7 +67,21 @@ GoRouter buildRouter(AuthStatusNotifier authNotifier) => GoRouter(
           routes: [
             GoRoute(
               path: '/overview',
-              builder: (_, _) => const SizedBox.shrink(),
+              builder: (_, _) => MultiBlocProvider(
+                providers: [
+                  BlocProvider<DashboardBloc>(
+                    create: (_) =>
+                        serviceLocator<DashboardBloc>()
+                          ..add(const DashboardStarted()),
+                  ),
+                  BlocProvider<DeviceListBloc>(
+                    create: (_) =>
+                        serviceLocator<DeviceListBloc>()
+                          ..add(const GetDevices()),
+                  ),
+                ],
+                child: const DashboardScreen(),
+              ),
             ),
           ],
         ),

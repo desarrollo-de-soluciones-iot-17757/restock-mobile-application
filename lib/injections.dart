@@ -1,5 +1,10 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
+import 'package:restock/analytics/application/analytics_facade_service.dart';
+import 'package:restock/analytics/domain/repositories/analytics_repository.dart';
+import 'package:restock/analytics/infrastructure/data_sources/analytics_remote_data_provider.dart';
+import 'package:restock/analytics/infrastructure/repositories/analytics_repository_impl.dart';
+import 'package:restock/analytics/presentation/views/dashboard/bloc/dashboard_bloc.dart';
 import 'package:restock/communications/application/communications_facade_service.dart';
 import 'package:restock/communications/infrastructure/data_sources/push_subscription_remote_data_provider.dart';
 import 'package:restock/communications/infrastructure/notifications/push_notifications_service.dart';
@@ -60,8 +65,8 @@ Future<void> setupDependencies() async {
   await localDatabase();
   await iamDependencies();
   await profileDependencies();
-  await analyticsDependencies();
   await rmDependencies();
+  await analyticsDependencies();
   await communicationsDependencies();
   await subscriptionsDependencies();
   await trackingDependencies();
@@ -138,8 +143,29 @@ Future<void> profileDependencies() async {
 
 /// Configures the dependencies for the Analytics context.
 Future<void> analyticsDependencies() async {
-  // For example:
-  // serviceLocator.registerLazySingleton<YourAnalyticsService>(() => YourAnalyticsServiceImpl());
+  serviceLocator.registerLazySingleton<MetricRemoteDataProvider>(
+    () => MetricRemoteDataProvider(http: serviceLocator<AuthHttpClient>()),
+  );
+
+  serviceLocator.registerLazySingleton<AnalyticsRepository>(
+    () => MetricRepositoryImpl(
+      metricRemoteDataProvider: serviceLocator<MetricRemoteDataProvider>(),
+      customSupplyRepository: serviceLocator<CustomSupplyRepository>(),
+    ),
+  );
+
+  serviceLocator.registerLazySingleton<AnalyticsFacadeService>(
+    () => AnalyticsFacadeService(
+      analyticsRepository: serviceLocator<AnalyticsRepository>(),
+      tokenStorage: serviceLocator<TokenStorage>(),
+    ),
+  );
+
+  serviceLocator.registerFactory<DashboardBloc>(
+    () => DashboardBloc(
+      analyticsFacadeService: serviceLocator<AnalyticsFacadeService>(),
+    ),
+  );
 }
 
 /// Configures the dependencies for the ARM context.
@@ -301,9 +327,9 @@ Future<void> rmDependencies() async {
   );
 
   serviceLocator.registerFactory<BatchTransferBloc>(
-        () => BatchTransferBloc(
-            branchFacadeService: serviceLocator<BranchFacadeService>(),
-            batchFacadeService: serviceLocator<BatchFacadeService>()
+    () => BatchTransferBloc(
+      branchFacadeService: serviceLocator<BranchFacadeService>(),
+      batchFacadeService: serviceLocator<BatchFacadeService>(),
     ),
   );
 }
