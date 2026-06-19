@@ -148,7 +148,7 @@ class PushNotificationService {
           message.data['title'],
           message.data['notificationTitle'],
         ]) ??
-        'Restock alert';
+        _fallbackTitleFor(message);
     final body =
         _firstNonEmpty([
           notification?.body,
@@ -186,11 +186,53 @@ class PushNotificationService {
   }
 
   String _fallbackBodyFor(RemoteMessage message) {
-    final sourceId = message.data['sourceId'] ?? message.data['event'];
-    if (sourceId == 'InventoryBelowMinimumStockEvent') {
+    final eventName = _eventNameFor(message);
+    final macAddress = _macAddressFor(message);
+    if (eventName == 'InventoryBelowMinimumStockEvent') {
       return 'Inventory is below minimum stock.';
     }
+    if (eventName == 'DeviceRegisteredEvent' && macAddress != null) {
+      return 'Device with the mac address $macAddress has been registered successfully';
+    }
+    if (eventName == 'DeviceConfiguredEvent' && macAddress != null) {
+      return 'Device with the mac address $macAddress has been configured successfully';
+    }
+    if (eventName == 'DeviceCalibratedEvent' && macAddress != null) {
+      return 'Device with the mac address $macAddress has been calibrated successfully';
+    }
     return 'Open Restock for details.';
+  }
+
+  String _fallbackTitleFor(RemoteMessage message) {
+    final eventName = _eventNameFor(message);
+    final macAddress = _macAddressFor(message);
+    if (eventName == 'DeviceRegisteredEvent' && macAddress != null) {
+      return 'New device registered $macAddress';
+    }
+    if (eventName == 'DeviceConfiguredEvent' && macAddress != null) {
+      return 'New device configured $macAddress';
+    }
+    if (eventName == 'DeviceCalibratedEvent' && macAddress != null) {
+      return 'New device calibrated $macAddress';
+    }
+    return 'Restock alert';
+  }
+
+  String? _eventNameFor(RemoteMessage message) {
+    return _firstNonEmpty([
+      message.data['event'],
+      message.data['eventName'],
+      message.data['eventType'],
+      message.data['type'],
+      message.data['notificationEvent'],
+    ]);
+  }
+
+  String? _macAddressFor(RemoteMessage message) {
+    return _firstNonEmpty([
+      message.data['macAddress'],
+      message.data['sourceId'],
+    ]);
   }
 
   void dispose() {

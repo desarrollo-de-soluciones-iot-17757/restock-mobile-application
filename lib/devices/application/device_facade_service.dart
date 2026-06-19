@@ -104,7 +104,6 @@ class DeviceFacadeService {
   Future<Device> assignBatchForOnboarding({
     required String deviceId,
     required String batchId,
-    required DeviceMeasurement measurement,
   }) async {
     try {
       // 1. Assign batch
@@ -112,7 +111,31 @@ class DeviceFacadeService {
         AssignBatchCommand(deviceId: deviceId, batchId: batchId),
       );
 
-      // 2. Update measurement — compute grossWeight and set calibrationDate
+      // 2. Add default specifications silently
+      await deviceRepository.updateSpecifications(
+        UpdateDeviceSpecificationsCommand(
+          deviceId: deviceId,
+          specifications: DeviceSpecifications.defaults,
+        ),
+      );
+
+      // 3. Assign branch — resolve default branchId
+      final branchId = await _resolveDefaultBranchId();
+      await deviceRepository.assignBranch(
+        AssignBranchCommand(deviceId: deviceId, branchId: branchId),
+      );
+
+      return await deviceRepository.getDeviceById(deviceId);
+    } catch (e) {
+      throw Exception('Failed to assign batch for onboarding: $e');
+    }
+  }
+
+  Future<Device> calibrateDevice({
+    required String deviceId,
+    required DeviceMeasurement measurement,
+  }) async {
+    try {
       final grossWeight = measurement.netWeight + measurement.tareWeight;
       final calibrationDate = DateTime.now().toIso8601String().substring(0, 10);
       await deviceRepository.updateMeasurement(
@@ -129,24 +152,9 @@ class DeviceFacadeService {
         ),
       );
 
-      // 3. Add default specifications silently
-      await deviceRepository.updateSpecifications(
-        UpdateDeviceSpecificationsCommand(
-          deviceId: deviceId,
-          specifications: DeviceSpecifications.defaults,
-        ),
-      );
-
-      // 4. Assign branch — resolve default branchId
-      final branchId = await _resolveDefaultBranchId();
-      await deviceRepository.assignBranch(
-        AssignBranchCommand(deviceId: deviceId, branchId: branchId),
-      );
-
-      // 5. Return updated device. Thresholds will complete onboarding later.
       return await deviceRepository.getDeviceById(deviceId);
     } catch (e) {
-      throw Exception('Failed to assign batch for onboarding: $e');
+      throw Exception('Failed to calibrate device: $e');
     }
   }
 
