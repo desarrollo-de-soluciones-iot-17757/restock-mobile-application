@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:restock/communications/infrastructure/notifications/push_notifications_service.dart';
@@ -23,14 +25,24 @@ Future<void> main() async {
   /// Initializes the `AuthStatusNotifier` service, which is responsible for managing the authentication status of the user. This may involve checking if the user is already authenticated, refreshing tokens, or setting up listeners for authentication state changes.
   await di.serviceLocator<AuthStatusNotifier>().initialize();
 
-  /// Requests permission from the user to receive push notifications. This is necessary for the app to be able to receive and display notifications sent via Firebase Cloud Messaging (FCM). The user will be prompted to grant or deny permission for notifications, and the app can handle the response accordingly.
-  await di.serviceLocator<PushNotificationService>().initialize(
-    onForeground: (message) {},
-    onTapped: (message) {},
-  );
-
   /// Runs the main application widget, which is defined in the `RestockApp` class. This will start the Flutter application and display the user interface.
   runApp(const RestockApp());
+
+  /// Push notifications must not block the first frame. On distributed builds,
+  /// FCM token or permission setup can fail before Flutter paints the sign in.
+  unawaited(_initializePushNotifications());
+}
+
+Future<void> _initializePushNotifications() async {
+  try {
+    await di.serviceLocator<PushNotificationService>().initialize(
+      onForeground: (message) {},
+      onTapped: (message) {},
+    );
+  } catch (error, stackTrace) {
+    debugPrint('Push notification initialization failed: $error');
+    debugPrintStack(stackTrace: stackTrace);
+  }
 }
 
 /// The main application widget.
