@@ -126,7 +126,17 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: flutter build apk --release --build-name "$VERSION_NAME" --build-number "$VERSION_CODE"
+          API_BASE_URL: ${{ secrets.API_BASE_URL }}
+        run: |
+          if [ -z "$API_BASE_URL" ]; then
+            echo "Missing API_BASE_URL repository secret."
+            exit 1
+          fi
+
+          flutter build apk --release \
+            --build-name "$VERSION_NAME" \
+            --build-number "$VERSION_CODE" \
+            --dart-define=API_BASE_URL="$API_BASE_URL"
 
       - name: Upload release to Firebase App Distribution
         env:
