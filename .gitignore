@@ -57,3 +57,6 @@ firebase-service-account.json
 *.jks
 *.p12
 *.mobileprovision
+
+# Environment config
+.env.json
