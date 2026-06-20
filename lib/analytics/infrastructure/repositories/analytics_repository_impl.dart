@@ -61,7 +61,7 @@ class MetricRepositoryImpl implements AnalyticsRepository {
   @override
   Future<AnalyticsOverview> getOverview(String accountId) async {
     final customSupplies = await customSupplyRepository
-        .getCustomSuppliesByBranchId();
+        .getCustomSuppliesByBranchId(accountId);
 
     final recentSalesFuture = getRecentSales(accountId: accountId);
     final criticalProductsFuture = getCriticalProducts(accountId);

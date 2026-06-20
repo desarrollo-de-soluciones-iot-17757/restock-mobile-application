@@ -34,12 +34,15 @@ class CustomSupplyRepositoryImpl implements CustomSupplyRepository {
 
   /// Fetches a list of custom supplies for the current branch from the remote data provider
   @override
-  Future<List<CustomSupply>> getCustomSuppliesByBranchId() async {
+  Future<List<CustomSupply>> getCustomSuppliesByBranchId(
+    String accountId,
+  ) async {
     try {
       final customSuppliesResponse = await customSupplyRemoteDataProvider
-          .getCustomSuppliesByBranchId();
+          .getCustomSuppliesByBranchId(accountId);
       final customSupplies = customSuppliesResponse
           .map((response) => response.toDomain())
+          .where((customSupply) => customSupply.accountId == accountId)
           .toList();
 
       await _tryCacheSupplyCatalog();
@@ -48,7 +51,7 @@ class CustomSupplyRepositoryImpl implements CustomSupplyRepository {
       return customSupplies;
     } catch (e) {
       final localCustomSupplies = await customSupplyLocalDataProvider
-          .getCustomSupplies();
+          .getCustomSuppliesByAccountId(accountId);
       if (localCustomSupplies.isEmpty) {
         throw Exception('Failed to fetch custom supplies: $e');
       }

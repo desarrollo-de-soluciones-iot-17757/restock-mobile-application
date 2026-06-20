@@ -24,11 +24,13 @@ class CustomSupplyRemoteDataProvider {
   /// Returns a list of `CustomSupplyResponseModel` objects if the request is successful.
   ///
   /// Throws an exception if the request fails or if the response status code is not OK.
-  Future<List<CustomSupplyResponseModel>> getCustomSuppliesByBranchId() async {
+  Future<List<CustomSupplyResponseModel>> getCustomSuppliesByBranchId(
+    String accountId,
+  ) async {
     try {
       final Uri uri = Uri.parse(
         "${ApiConstants.baseUrl}${ResourcesApiConstants.customSupplies}",
-      );
+      ).replace(queryParameters: {'accountId': accountId});
 
       final response = await http.get(uri);
 
@@ -124,7 +126,7 @@ class CustomSupplyRemoteDataProvider {
     RegisterCustomSupplyRequest request,
   ) async {
     try {
-      final supplies = await getCustomSuppliesByBranchId();
+      final supplies = await getCustomSuppliesByBranchId(request.accountId);
       for (final supply in supplies) {
         final hasSameName =
             supply.name.trim().toLowerCase() ==

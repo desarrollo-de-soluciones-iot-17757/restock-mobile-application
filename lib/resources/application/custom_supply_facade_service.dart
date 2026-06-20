@@ -22,7 +22,14 @@ class CustomSupplyFacadeService {
   /// Fetches a list of custom supplies for the current branch
   Future<List<CustomSupply>> getCustomSuppliesByBranchId() async {
     try {
-      return await customSupplyRepository.getCustomSuppliesByBranchId();
+      final accountId = await tokenStorage.readAccountId();
+      if (accountId == null) {
+        throw Exception('Account ID not found in token storage');
+      }
+
+      return await customSupplyRepository.getCustomSuppliesByBranchId(
+        accountId,
+      );
     } catch (e) {
       throw Exception('Failed to fetch custom supplies: $e');
     }
