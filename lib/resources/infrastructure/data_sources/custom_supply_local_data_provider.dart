@@ -15,6 +15,18 @@ class CustomSupplyLocalDataProvider {
     return result.map(CustomSupplyEntity.fromMap).toList();
   }
 
+  Future<List<CustomSupplyEntity>> getCustomSuppliesByAccountId(
+    String accountId,
+  ) async {
+    final db = await appDatabase.database;
+    final result = await db.rawQuery(
+      '${_customSupplyJoinQuery()} WHERE cs.${ResourceDatabaseConstants.customSupplyAccountId} = ?',
+      [accountId],
+    );
+
+    return result.map(CustomSupplyEntity.fromMap).toList();
+  }
+
   Future<CustomSupplyEntity?> getCustomSupplyById(String customSupplyId) async {
     final db = await appDatabase.database;
     final result = await db.rawQuery(
