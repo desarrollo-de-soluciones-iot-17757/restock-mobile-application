@@ -8,7 +8,7 @@ abstract class CustomSupplyRepository {
   /// Fetches a list of custom supplies associated with a specific branch ID.
   ///
   /// Returns a [Future] that resolves to a list of [CustomSupply] objects.
-  Future<List<CustomSupply>> getCustomSuppliesByBranchId();
+  Future<List<CustomSupply>> getCustomSuppliesByBranchId(String accountId);
 
   Future<CustomSupply> getCustomSupplyById(String customSupplyId);
 
