@@ -8,6 +8,11 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 /// Callback types for notification handling
 typedef OnMessageReceived = void Function(RemoteMessage message);
 typedef OnNotificationTapped = void Function(RemoteMessage message);
+typedef OnStockNormalized = void Function({
+  required String customSupplyId,
+  String? sourceId,
+  String? deviceId,
+});
 
 /// A service class to handle push notifications using Firebase Cloud Messaging (FCM).
 class PushNotificationService {
@@ -19,6 +24,7 @@ class PushNotificationService {
 
   OnMessageReceived? onForegroundMessage;
   OnNotificationTapped? onNotificationTapped;
+  OnStockNormalized? onStockNormalized;
 
   final _tokenController = StreamController<String>.broadcast();
   Stream<String> get tokenStream => _tokenController.stream;
@@ -37,9 +43,11 @@ class PushNotificationService {
   Future<void> initialize({
     OnMessageReceived? onForeground,
     OnNotificationTapped? onTapped,
+    OnStockNormalized? onStockNormalized,
   }) async {
     onForegroundMessage = onForeground;
     onNotificationTapped = onTapped;
+    this.onStockNormalized = onStockNormalized;
 
     if (_initialized) {
       await _fetchAndStoreToken();
@@ -124,6 +132,13 @@ class PushNotificationService {
 
   void _listenForegroundMessages() {
     FirebaseMessaging.onMessage.listen((message) {
+      final eventName = _eventNameFor(message);
+
+      if (eventName == 'InventoryNormalizedEvent') {
+        _handleStockNormalized(message);
+        return;
+      }
+
       onForegroundMessage?.call(message);
       _showLocalNotification(message);
     });
@@ -133,9 +148,27 @@ class PushNotificationService {
     });
   }
 
+  void _handleStockNormalized(RemoteMessage message) {
+    final customSupplyId = message.data['customSupplyId'] as String?;
+    if (customSupplyId == null || customSupplyId.isEmpty) return;
+
+    final sourceId = _macAddressFor(message);
+    final deviceId = message.data['deviceId'] as String?;
+
+    onStockNormalized?.call(
+      customSupplyId: customSupplyId,
+      sourceId: sourceId,
+      deviceId: deviceId,
+    );
+  }
+
   Future<void> _handleInitialMessage() async {
     final initial = await _messaging.getInitialMessage();
     if (initial != null) {
+      final eventName = _eventNameFor(initial);
+      if (eventName == 'InventoryNormalizedEvent') {
+        _handleStockNormalized(initial);
+      }
       onNotificationTapped?.call(initial);
     }
   }
