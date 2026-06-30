@@ -4,6 +4,7 @@ enum NotificationType {
   deviceConfigured,
   deviceCalibrated,
   stockNormalized,
+  stockExcess,
   unknown,
 }
 

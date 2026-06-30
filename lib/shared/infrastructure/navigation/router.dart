@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:restock/analytics/presentation/views/dashboard/bloc/dashboard_bloc.dart';
 import 'package:restock/analytics/presentation/views/dashboard/bloc/dashboard_event.dart';
 import 'package:restock/analytics/presentation/views/dashboard/pages/dashboard_screen.dart';
+import 'package:restock/communications/presentation/notification_center/notification_center_screen.dart';
 import 'package:restock/devices/presentation/views/device_detail/bloc/device_detail_bloc.dart';
 import 'package:restock/devices/presentation/views/device_detail/bloc/device_detail_event.dart';
 import 'package:restock/devices/presentation/views/device_detail/device_detail_screen.dart';
@@ -58,6 +59,10 @@ GoRouter buildRouter(AuthStatusNotifier authNotifier) => GoRouter(
         create: (_) => serviceLocator<SignInBloc>(),
         child: const SignInPage(),
       ),
+    ),
+    GoRoute(
+      path: '/notifications',
+      builder: (_, _) => const NotificationCenterScreen(),
     ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) =>

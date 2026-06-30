@@ -2,27 +2,53 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:restock/communications/infrastructure/models/notification_model.dart';
+import 'package:restock/communications/infrastructure/models/stock_threshold_alert_model.dart';
 import 'package:restock/communications/infrastructure/repositories/constants/communications_api_constants.dart';
 import 'package:restock/iam/infrastructure/interceptor/auth_http_client.dart';
 import 'package:restock/shared/infrastructure/repositories/constants/api_constants.dart';
+import 'package:restock/shared/infrastructure/storage/token_storage.dart';
 
 class NotificationRemoteDataProvider {
-  const NotificationRemoteDataProvider({required this.http});
+  const NotificationRemoteDataProvider({
+    required this.http,
+    required this.tokenStorage,
+  });
 
   final AuthHttpClient http;
+  final TokenStorage tokenStorage;
+
+  List<NotificationModel> _parseNotificationList(String body) {
+    final decoded = jsonDecode(body);
+    final List<dynamic> data;
+    if (decoded is Map<String, dynamic> && decoded.containsKey('notifications')) {
+      data = decoded['notifications'] as List<dynamic>;
+    } else if (decoded is List<dynamic>) {
+      data = decoded;
+    } else {
+      throw const FormatException('Unexpected response format');
+    }
+    return data
+        .map((j) => NotificationModel.fromJson(j as Map<String, dynamic>))
+        .toList();
+  }
 
   Future<List<NotificationModel>> getActiveNotifications() async {
+    final accountId = await tokenStorage.readAccountId();
+    if (accountId == null) {
+      throw Exception('Account ID not found');
+    }
+
     final uri = Uri.parse(
       '${ApiConstants.baseUrl}${CommunicationsApiConstants.notifications}',
-    ).replace(queryParameters: {'status': 'ACTIVE'});
+    ).replace(queryParameters: {
+      'recipientUserId': accountId,
+      'status': 'ACTIVE',
+    });
 
     final response = await http.get(uri);
 
     if (response.statusCode == HttpStatus.ok) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data
-          .map((j) => NotificationModel.fromJson(j as Map<String, dynamic>))
-          .toList();
+      return _parseNotificationList(response.body);
     }
 
     throw Exception(
@@ -31,9 +57,15 @@ class NotificationRemoteDataProvider {
   }
 
   Future<List<NotificationModel>> getActiveLowStockNotifications() async {
+    final accountId = await tokenStorage.readAccountId();
+    if (accountId == null) {
+      throw Exception('Account ID not found');
+    }
+
     final uri = Uri.parse(
       '${ApiConstants.baseUrl}${CommunicationsApiConstants.notifications}',
     ).replace(queryParameters: {
+      'recipientUserId': accountId,
       'status': 'ACTIVE',
       'type': 'LOW_STOCK',
     });
@@ -41,10 +73,7 @@ class NotificationRemoteDataProvider {
     final response = await http.get(uri);
 
     if (response.statusCode == HttpStatus.ok) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data
-          .map((j) => NotificationModel.fromJson(j as Map<String, dynamic>))
-          .toList();
+      return _parseNotificationList(response.body);
     }
 
     throw Exception(
@@ -55,17 +84,22 @@ class NotificationRemoteDataProvider {
   Future<List<NotificationModel>> getNotificationsBySourceId(
     String sourceId,
   ) async {
+    final accountId = await tokenStorage.readAccountId();
+    if (accountId == null) {
+      throw Exception('Account ID not found');
+    }
+
     final uri = Uri.parse(
       '${ApiConstants.baseUrl}${CommunicationsApiConstants.notifications}',
-    ).replace(queryParameters: {'sourceId': sourceId});
+    ).replace(queryParameters: {
+      'recipientUserId': accountId,
+      'sourceId': sourceId,
+    });
 
     final response = await http.get(uri);
 
     if (response.statusCode == HttpStatus.ok) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data
-          .map((j) => NotificationModel.fromJson(j as Map<String, dynamic>))
-          .toList();
+      return _parseNotificationList(response.body);
     }
 
     throw Exception(
@@ -126,5 +160,34 @@ class NotificationRemoteDataProvider {
         'Failed to delete notification: ${response.statusCode}',
       );
     }
+  }
+
+  Future<List<StockThresholdAlertModel>> evaluateStockThresholds() async {
+    final uri = Uri.parse(
+      '${ApiConstants.baseUrl}${CommunicationsApiConstants.stockThresholdsEvaluate}',
+    );
+
+    final response = await http.post(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == HttpStatus.ok) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data
+          .map(
+            (j) =>
+                StockThresholdAlertModel.fromJson(j as Map<String, dynamic>),
+          )
+          .toList();
+    }
+
+    if (response.statusCode == HttpStatus.badRequest) {
+      return <StockThresholdAlertModel>[];
+    }
+
+    throw Exception(
+      'Failed to evaluate stock thresholds: ${response.statusCode}',
+    );
   }
 }

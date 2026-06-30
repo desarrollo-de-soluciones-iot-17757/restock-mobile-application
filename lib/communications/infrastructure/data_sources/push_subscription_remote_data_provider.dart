@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:restock/communications/infrastructure/models/push_subscription_request.dart';
 import 'package:restock/communications/infrastructure/repositories/constants/communications_api_constants.dart';
 import 'package:restock/iam/infrastructure/interceptor/auth_http_client.dart';

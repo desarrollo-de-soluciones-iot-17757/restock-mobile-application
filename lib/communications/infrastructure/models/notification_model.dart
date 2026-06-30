@@ -84,6 +84,8 @@ class NotificationModel {
         return NotificationType.deviceCalibrated;
       case 'STOCK_NORMALIZED':
         return NotificationType.stockNormalized;
+      case 'STOCK_EXCESS':
+        return NotificationType.stockExcess;
       default:
         return NotificationType.unknown;
     }
@@ -112,6 +114,8 @@ class NotificationModel {
         return 'DEVICE_CALIBRATED';
       case NotificationType.stockNormalized:
         return 'STOCK_NORMALIZED';
+      case NotificationType.stockExcess:
+        return 'STOCK_EXCESS';
       case NotificationType.unknown:
         return 'UNKNOWN';
     }

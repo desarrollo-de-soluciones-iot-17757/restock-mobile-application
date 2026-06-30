@@ -1,4 +1,5 @@
 import 'package:restock/communications/domain/entities/notification.dart';
+import 'package:restock/communications/domain/entities/stock_threshold_alert.dart';
 import 'package:restock/communications/domain/repositories/notification_repository.dart';
 import 'package:restock/communications/infrastructure/data_sources/notification_remote_data_provider.dart';
 import 'package:restock/communications/infrastructure/models/notification_model.dart';
@@ -70,6 +71,18 @@ class NotificationRepositoryImpl implements NotificationRepository {
       await remoteDataProvider.deleteNotification(notificationId);
     } catch (e) {
       throw Exception('Failed to delete notification: $e');
+    }
+  }
+
+  @override
+  Future<List<StockThresholdAlert>> evaluateStockThresholds() async {
+    try {
+      final models = await remoteDataProvider.evaluateStockThresholds();
+      return models
+          .map<StockThresholdAlert>((m) => m.toDomain())
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to evaluate stock thresholds: $e');
     }
   }
 }
