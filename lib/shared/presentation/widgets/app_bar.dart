@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:restock/communications/presentation/notification_center/bloc/notification_center_event.dart';
+import 'package:go_router/go_router.dart';
+import 'package:restock/communications/presentation/widgets/notification_button.dart';
 import 'package:restock/injections.dart';
 import 'package:restock/profiles/presentation/widgets/profile_avatar.dart';
 import 'package:restock/shared/infrastructure/services/auth_status_notifier.dart';
 
 /// A custom AppBar widget for the Restock application, featuring a distinctive design and layout.
 ///
-/// This AppBar includes a title, subtitle, notification icon with badge, and a user profile avatar.
+/// This AppBar includes a title, centered notification icon with badge, and a user profile avatar.
 class RestockAppBar extends StatelessWidget implements PreferredSizeWidget {
   const RestockAppBar({super.key});
 
@@ -22,13 +23,11 @@ class RestockAppBar extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0,
       toolbarHeight: 80,
       automaticallyImplyLeading: false,
-      title: const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+      title: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Row(
           children: [
-            Text(
+            const Text(
               'RESTOCK',
               style: TextStyle(
                 color: Color(0xFF4ECCA3),
@@ -37,49 +36,50 @@ class RestockAppBar extends StatelessWidget implements PreferredSizeWidget {
                 letterSpacing: 1.5,
               ),
             ),
-          ],
-        ),
-      ),
-      actions: [
-        const NotificationButton(hasUnread: true),
-        const SizedBox(width: 4),
-        PopupMenuButton<_AccountAction>(
-          tooltip: 'Account menu',
-          offset: const Offset(0, 48),
-          color: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          onSelected: (action) {
-            if (action == _AccountAction.signOut) {
-              _confirmSignOut(context);
-            }
-          },
-          itemBuilder: (context) => const [
-            PopupMenuItem(
-              value: _AccountAction.signOut,
-              child: Row(
-                children: [
-                  Icon(Icons.logout_rounded, color: Color(0xFFB42318)),
-                  SizedBox(width: 12),
-                  Text(
-                    'Sign out',
-                    style: TextStyle(
-                      color: Color(0xFFB42318),
-                      fontWeight: FontWeight.w700,
-                    ),
+            const Spacer(),
+            NotificationButton(
+              hasUnread: true,
+              onTap: () => context.push('/notifications'),
+            ),
+            const SizedBox(width: 4),
+            PopupMenuButton<_AccountAction>(
+              tooltip: 'Account menu',
+              offset: const Offset(0, 48),
+              color: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              onSelected: (action) {
+                if (action == _AccountAction.signOut) {
+                  _confirmSignOut(context);
+                }
+              },
+              itemBuilder: (context) => const [
+                PopupMenuItem(
+                  value: _AccountAction.signOut,
+                  child: Row(
+                    children: [
+                      Icon(Icons.logout_rounded, color: Color(0xFFB42318)),
+                      SizedBox(width: 12),
+                      Text(
+                        'Sign out',
+                        style: TextStyle(
+                          color: Color(0xFFB42318),
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
+              ],
+              child: const ProfileAvatar(
+                imageUrl:
+                    'https://pbs.twimg.com/profile_images/1481345033878085634/r4uZxGeb_400x400.jpg',
               ),
             ),
           ],
-          child: const ProfileAvatar(
-            imageUrl:
-                'https://pbs.twimg.com/profile_images/1481345033878085634/r4uZxGeb_400x400.jpg',
-          ),
         ),
-        const SizedBox(width: 20),
-      ],
+      ),
     );
   }
 

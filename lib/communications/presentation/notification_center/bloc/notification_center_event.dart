@@ -1,38 +1,29 @@
-import 'package:flutter/material.dart';
+abstract class NotificationCenterEvent {
+  const NotificationCenterEvent();
+}
 
-class NotificationButton extends StatelessWidget {
-  const NotificationButton({this.hasUnread = false, this.onTap});
+class LoadNotifications extends NotificationCenterEvent {
+  const LoadNotifications();
+}
 
-  final bool hasUnread;
-  final VoidCallback? onTap;
+class EvaluateStockThresholds extends NotificationCenterEvent {
+  const EvaluateStockThresholds();
+}
 
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        IconButton(
-          icon: const Icon(
-            Icons.notifications_outlined,
-            color: Colors.white,
-            size: 26,
-          ),
-          onPressed: onTap,
-        ),
-        if (hasUnread)
-          Positioned(
-            top: 8,
-            right: 8,
-            child: Container(
-              width: 9,
-              height: 9,
-              decoration: const BoxDecoration(
-                color: Color(0xFFE24B4A),
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
-      ],
-    );
-  }
+class SelectTab extends NotificationCenterEvent {
+  const SelectTab(this.tabIndex);
+
+  final int tabIndex;
+}
+
+class MarkNotificationAsResolved extends NotificationCenterEvent {
+  const MarkNotificationAsResolved(this.notificationId);
+
+  final String notificationId;
+}
+
+class DismissStockAlert extends NotificationCenterEvent {
+  const DismissStockAlert(this.alertId);
+
+  final String alertId;
 }

@@ -352,6 +352,7 @@ Future<void> communicationsDependencies() async {
   serviceLocator.registerLazySingleton<NotificationRemoteDataProvider>(
     () => NotificationRemoteDataProvider(
       http: serviceLocator<AuthHttpClient>(),
+      tokenStorage: serviceLocator<TokenStorage>(),
     ),
   );
 
