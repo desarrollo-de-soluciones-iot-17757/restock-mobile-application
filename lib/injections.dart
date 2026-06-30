@@ -6,8 +6,11 @@ import 'package:restock/analytics/infrastructure/data_sources/analytics_remote_d
 import 'package:restock/analytics/infrastructure/repositories/analytics_repository_impl.dart';
 import 'package:restock/analytics/presentation/views/dashboard/bloc/dashboard_bloc.dart';
 import 'package:restock/communications/application/communications_facade_service.dart';
+import 'package:restock/communications/domain/repositories/notification_repository.dart';
+import 'package:restock/communications/infrastructure/data_sources/notification_remote_data_provider.dart';
 import 'package:restock/communications/infrastructure/data_sources/push_subscription_remote_data_provider.dart';
 import 'package:restock/communications/infrastructure/notifications/push_notifications_service.dart';
+import 'package:restock/communications/infrastructure/repositories/notification_repository_impl.dart';
 import 'package:restock/devices/application/device_facade_service.dart';
 import 'package:restock/devices/application/device_threshold_facade_service.dart';
 import 'package:restock/resources/domain/repositories/batch_repository.dart';
@@ -346,12 +349,26 @@ Future<void> communicationsDependencies() async {
     ),
   );
 
+  serviceLocator.registerLazySingleton<NotificationRemoteDataProvider>(
+    () => NotificationRemoteDataProvider(
+      http: serviceLocator<AuthHttpClient>(),
+      tokenStorage: serviceLocator<TokenStorage>(),
+    ),
+  );
+
+  serviceLocator.registerLazySingleton<NotificationRepository>(
+    () => NotificationRepositoryImpl(
+      remoteDataProvider: serviceLocator<NotificationRemoteDataProvider>(),
+    ),
+  );
+
   serviceLocator.registerLazySingleton<CommunicationsFacadeService>(
     () => CommunicationsFacadeService(
       pushNotificationsService: serviceLocator<PushNotificationService>(),
       pushSubscriptionRemoteDataProvider:
           serviceLocator<PushSubscriptionRemoteDataProvider>(),
       tokenStorage: serviceLocator<TokenStorage>(),
+      notificationRepository: serviceLocator<NotificationRepository>(),
     ),
   );
 }
