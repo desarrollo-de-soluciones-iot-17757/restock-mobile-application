@@ -27,17 +27,25 @@ class NotificationModel {
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
     return NotificationModel(
-      id: json['id'] as String,
-      type: json['type'] as String,
-      status: json['status'] as String,
-      title: json['title'] as String,
-      body: json['body'] as String,
-      sourceId: json['sourceId'] as String?,
-      customSupplyId: json['customSupplyId'] as String?,
-      deviceId: json['deviceId'] as String?,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      id: json['id']?.toString() ?? '',
+      type: json['type']?.toString() ??
+          json['sourceType']?.toString() ??
+          'UNKNOWN',
+      status: json['status']?.toString() ?? 'ACTIVE',
+      title: json['title']?.toString() ?? '',
+      body: json['body']?.toString() ??
+          json['message']?.toString() ??
+          '',
+      sourceId: json['sourceId']?.toString(),
+      customSupplyId: json['customSupplyId']?.toString(),
+      deviceId: json['deviceId']?.toString(),
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'].toString()) ?? DateTime.now()
+          : json['timestamp'] != null
+              ? DateTime.tryParse(json['timestamp'].toString()) ?? DateTime.now()
+              : DateTime.now(),
       resolvedAt: json['resolvedAt'] != null
-          ? DateTime.parse(json['resolvedAt'] as String)
+          ? DateTime.tryParse(json['resolvedAt'].toString())
           : null,
     );
   }

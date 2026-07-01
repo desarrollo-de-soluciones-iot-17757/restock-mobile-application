@@ -5,6 +5,10 @@ class ApiConstants {
 
   static const String _productionUrl = String.fromEnvironment('API_BASE_URL');
 
+  /// Deployed backend base URL on Azure.
+  static const String _azureUrl =
+      'https://restock-api-17757.azurewebsites.net/api/v1/';
+
   /// The base URL for Android and IOS Simulator (localhost).
   static String get baseUrl {
 
@@ -12,9 +16,7 @@ class ApiConstants {
       return _productionUrl;
     }
 
-    if (Platform.isAndroid) {
-      return 'http://10.0.2.2:8080/api/v1/';
-    }
-    return 'http://127.0.0.1:8080/api/v1/';
+    // Use the deployed Azure backend by default.
+    return _azureUrl;
   }
 }
