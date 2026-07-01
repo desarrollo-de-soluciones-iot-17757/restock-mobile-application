@@ -24,14 +24,25 @@ class StockExcessAlertCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isActive = alert.status == StockAlertStatus.active;
-    final accentColor =
-        isActive ? const Color(0xFFE65100) : const Color(0xFF2E7D32);
+    const themeColor = Color(0xFFE65100);
+    const bgColor = Color(0xFFFFF3E0);
 
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 0,
-      color: Colors.white,
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: const Border(
+          left: BorderSide(color: themeColor, width: 5),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -41,18 +52,16 @@ class StockExcessAlertCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 40,
-                  height: 40,
+                  width: 44,
+                  height: 44,
                   decoration: BoxDecoration(
-                    color: isActive
-                        ? const Color(0xFFFFF3E0)
-                        : const Color(0xFFE8F5E9),
-                    borderRadius: BorderRadius.circular(10),
+                    color: bgColor,
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.inventory_2_outlined,
-                    color: accentColor,
-                    size: 22,
+                    color: themeColor,
+                    size: 24,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -61,38 +70,37 @@ class StockExcessAlertCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
                             child: Text(
                               alert.productName,
                               style: const TextStyle(
                                 fontWeight: FontWeight.w700,
-                                fontSize: 14,
-                                color: Color(0xFF151C2A),
+                                fontSize: 15,
+                                color: Color(0xFF1E293B),
                               ),
                             ),
                           ),
                           Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 2,
-                            ),
+                                horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
-                              color: accentColor.withValues(alpha: 0.12),
+                              color: themeColor.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(6),
                             ),
-                            child: Text(
-                              isActive ? 'Active' : 'Optimal',
+                            child: const Text(
+                              'Active',
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
-                                color: accentColor,
+                                color: themeColor,
                               ),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 2),
                       Text(
                         alert.branchName,
                         style: const TextStyle(
@@ -103,22 +111,30 @@ class StockExcessAlertCard extends StatelessWidget {
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          _buildLevelIndicator(
-                            label: 'Current',
-                            value: alert.currentLevel,
-                            color: isActive
-                                ? const Color(0xFFE65100)
-                                : const Color(0xFF2E7D32),
+                          _dot(themeColor),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Current: ${alert.currentLevel}',
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: themeColor,
+                            ),
                           ),
-                          const SizedBox(width: 24),
-                          _buildLevelIndicator(
-                            label: 'Max Threshold',
-                            value: alert.maxThreshold,
-                            color: const Color(0xFF7B7F88),
+                          const SizedBox(width: 16),
+                          _dot(const Color(0xFF94A3B8)),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Max Threshold: ${alert.maxThreshold}',
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF64748B),
+                            ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 4),
                       Text(
                         _relativeTime,
                         style: const TextStyle(
@@ -132,17 +148,17 @@ class StockExcessAlertCard extends StatelessWidget {
               ],
             ),
             if (isActive) ...[
-              const SizedBox(height: 12),
+              const SizedBox(height: 14),
               Row(
                 children: [
                   Expanded(
                     child: SizedBox(
-                      height: 38,
+                      height: 42,
                       child: OutlinedButton(
                         onPressed: onInvestigate,
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: const Color(0xFF151C2A),
-                          side: const BorderSide(color: Color(0xFFD1D5DB)),
+                          foregroundColor: const Color(0xFF1E293B),
+                          side: const BorderSide(color: Color(0xFFCBD5E1)),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -151,7 +167,7 @@ class StockExcessAlertCard extends StatelessWidget {
                           'Investigate',
                           style: TextStyle(
                             fontSize: 13,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w800,
                           ),
                         ),
                       ),
@@ -160,7 +176,7 @@ class StockExcessAlertCard extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: SizedBox(
-                      height: 38,
+                      height: 42,
                       child: ElevatedButton(
                         onPressed: onMarkResolved,
                         style: ElevatedButton.styleFrom(
@@ -175,7 +191,7 @@ class StockExcessAlertCard extends StatelessWidget {
                           'Mark Resolved',
                           style: TextStyle(
                             fontSize: 13,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w800,
                           ),
                         ),
                       ),
@@ -190,32 +206,9 @@ class StockExcessAlertCard extends StatelessWidget {
     );
   }
 
-  Widget _buildLevelIndicator({
-    required String label,
-    required double value,
-    required Color color,
-  }) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 8,
-          height: 8,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
-        ),
-        const SizedBox(width: 4),
-        Text(
-          '$label: $value',
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: color,
-          ),
-        ),
-      ],
-    );
-  }
+  Widget _dot(Color color) => Container(
+        width: 8,
+        height: 8,
+        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+      );
 }
