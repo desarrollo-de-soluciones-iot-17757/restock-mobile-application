@@ -94,6 +94,14 @@ class AlertsBody extends StatelessWidget {
       for (final alert in state.stockAlerts) {
         items.add(_buildStockAlertCard(context, alert));
       }
+      final filtered = state.notifications
+          .where((n) =>
+              n.type == NotificationType.lowStock ||
+              n.type == NotificationType.stockExcess)
+          .toList();
+      for (final notification in filtered) {
+        items.add(_buildNotificationCard(context, notification));
+      }
     } else if (tabIndex == 2) {
       final filtered = state.notifications
           .where((n) =>
@@ -107,8 +115,11 @@ class AlertsBody extends StatelessWidget {
     } else if (tabIndex == 3) {
       final filtered = state.notifications
           .where((n) =>
-              n.type == NotificationType.lowStock ||
-              n.type == NotificationType.stockExcess)
+              n.type != NotificationType.lowStock &&
+              n.type != NotificationType.stockExcess &&
+              n.type != NotificationType.deviceRegistered &&
+              n.type != NotificationType.deviceConfigured &&
+              n.type != NotificationType.deviceCalibrated)
           .toList();
       for (final notification in filtered) {
         items.add(_buildNotificationCard(context, notification));
