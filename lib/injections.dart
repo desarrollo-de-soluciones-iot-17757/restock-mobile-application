@@ -5,6 +5,11 @@ import 'package:restock/analytics/domain/repositories/analytics_repository.dart'
 import 'package:restock/analytics/infrastructure/data_sources/analytics_remote_data_provider.dart';
 import 'package:restock/analytics/infrastructure/repositories/analytics_repository_impl.dart';
 import 'package:restock/analytics/presentation/views/dashboard/bloc/dashboard_bloc.dart';
+import 'package:restock/business/application/business_facade_service.dart';
+import 'package:restock/business/domain/repository/business_repository.dart';
+import 'package:restock/business/infrastructure/data_sources/business_remote_data_provider.dart';
+import 'package:restock/business/infrastructure/repository/business_repository_impl.dart';
+import 'package:restock/business/presentation/bloc/business_bloc.dart';
 import 'package:restock/communications/application/communications_facade_service.dart';
 import 'package:restock/communications/domain/repositories/notification_repository.dart';
 import 'package:restock/communications/infrastructure/data_sources/notification_remote_data_provider.dart';
@@ -73,6 +78,7 @@ Future<void> setupDependencies() async {
   await localDatabase();
   await iamDependencies();
   await profileDependencies();
+  await businessDependencies();
   await rmDependencies();
   await analyticsDependencies();
   await communicationsDependencies();
@@ -165,6 +171,32 @@ Future<void> profileDependencies() async {
   serviceLocator.registerFactory<ProfileBloc>(
     () => ProfileBloc(
       profilesFacadeService: serviceLocator<ProfilesFacadeService>(),
+    ),
+  );
+}
+
+/// Configures the dependencies for the Business context.
+Future<void> businessDependencies() async {
+  serviceLocator.registerLazySingleton<BusinessRemoteDataProvider>(
+    () => BusinessRemoteDataProvider(http: serviceLocator<AuthHttpClient>()),
+  );
+
+  serviceLocator.registerLazySingleton<BusinessRepository>(
+    () => BusinessRepositoryImpl(
+      businessRemoteDataProvider: serviceLocator<BusinessRemoteDataProvider>(),
+    ),
+  );
+
+  serviceLocator.registerLazySingleton<BusinessFacadeService>(
+    () => BusinessFacadeService(
+      businessRepository: serviceLocator<BusinessRepository>(),
+      tokenStorage: serviceLocator<TokenStorage>(),
+    ),
+  );
+
+  serviceLocator.registerFactory<BusinessBloc>(
+    () => BusinessBloc(
+      businessFacadeService: serviceLocator<BusinessFacadeService>(),
     ),
   );
 }

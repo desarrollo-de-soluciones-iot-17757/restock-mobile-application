@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class ProfileLabeledTextField extends StatelessWidget {
+class ProfileLabeledTextField extends StatefulWidget {
   const ProfileLabeledTextField({
     required this.label,
     required this.value,
@@ -19,13 +19,44 @@ class ProfileLabeledTextField extends StatelessWidget {
   final bool enabled;
 
   @override
+  State<ProfileLabeledTextField> createState() =>
+      _ProfileLabeledTextFieldState();
+}
+
+class _ProfileLabeledTextFieldState extends State<ProfileLabeledTextField> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.value);
+  }
+
+  @override
+  void didUpdateWidget(ProfileLabeledTextField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.value != _controller.text) {
+      _controller.value = TextEditingValue(
+        text: widget.value,
+        selection: TextSelection.collapsed(offset: widget.value.length),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return TextFormField(
-      key: ValueKey('$label-$value'),
-      initialValue: value,
-      onChanged: onChanged,
-      enabled: enabled,
-      keyboardType: keyboardType,
+      controller: _controller,
+      onChanged: widget.onChanged,
+      enabled: widget.enabled,
+      keyboardType: widget.keyboardType,
       style: const TextStyle(
         color: Color(0xFF1F2026),
         fontSize: 16,
@@ -33,8 +64,8 @@ class ProfileLabeledTextField extends StatelessWidget {
         letterSpacing: 0,
       ),
       decoration: InputDecoration(
-        labelText: label,
-        errorText: errorText,
+        labelText: widget.label,
+        errorText: widget.errorText,
         alignLabelWithHint: true,
         labelStyle: const TextStyle(
           color: Color(0xFF5D616A),

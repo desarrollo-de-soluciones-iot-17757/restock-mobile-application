@@ -3,6 +3,9 @@ import 'package:go_router/go_router.dart';
 import 'package:restock/analytics/presentation/views/dashboard/bloc/dashboard_bloc.dart';
 import 'package:restock/analytics/presentation/views/dashboard/bloc/dashboard_event.dart';
 import 'package:restock/analytics/presentation/views/dashboard/pages/dashboard_screen.dart';
+import 'package:restock/business/presentation/bloc/business_bloc.dart';
+import 'package:restock/business/presentation/bloc/business_event.dart';
+import 'package:restock/business/presentation/business_page.dart';
 import 'package:restock/communications/presentation/notification_center/notification_center_screen.dart';
 import 'package:restock/devices/presentation/views/device_detail/bloc/device_detail_bloc.dart';
 import 'package:restock/devices/presentation/views/device_detail/bloc/device_detail_event.dart';
@@ -235,6 +238,17 @@ GoRouter buildRouter(AuthStatusNotifier authNotifier) => GoRouter(
                   pageBuilder: (_, _) =>
                       const NoTransitionPage(child: ProfilePage()),
                 ),
+                GoRoute(
+                  path: '/settings/business',
+                  pageBuilder: (_, _) => NoTransitionPage(
+                    child: BlocProvider<BusinessBloc>(
+                      create: (_) =>
+                          serviceLocator<BusinessBloc>()
+                            ..add(const BusinessStarted()),
+                      child: const BusinessPage(),
+                    ),
+                  ),
+                ),
               ],
             ),
             GoRoute(
@@ -266,6 +280,7 @@ SettingsSection _settingsSectionFor(String path) {
   return switch (path) {
     '/settings/general' => SettingsSection.general,
     '/settings/profile' => SettingsSection.profile,
+    '/settings/business' => SettingsSection.business,
     _ => SettingsSection.branches,
   };
 }
