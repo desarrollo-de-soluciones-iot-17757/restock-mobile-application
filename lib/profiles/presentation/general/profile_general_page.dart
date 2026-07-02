@@ -4,8 +4,6 @@ import 'package:restock/resources/application/branch_facade_service.dart';
 import 'package:restock/resources/domain/entities/branch.dart';
 import 'package:restock/resources/presentation/branches/branch_list/bloc/branch_list_bloc.dart';
 import 'package:restock/resources/presentation/branches/branch_list/bloc/branch_list_state.dart';
-import 'package:restock/resources/presentation/branches/widgets/active_branch_card.dart';
-import 'package:restock/shared/presentation/utils/enums/bloc_status.dart';
 import 'package:restock/shared/presentation/utils/ui/theme.dart';
 
 class ProfileGeneralPage extends StatefulWidget {
@@ -18,6 +16,10 @@ class ProfileGeneralPage extends StatefulWidget {
 class _ProfileGeneralPageState extends State<ProfileGeneralPage> {
   String? _storedBranchId;
   String? _selectedBranchId;
+  bool _storedEmailNotifications = true;
+  bool _storedPushNotifications = true;
+  bool _emailNotifications = true;
+  bool _pushNotifications = true;
   bool _hasLoadedSelectedBranch = false;
   bool _isSaving = false;
 
@@ -42,10 +44,6 @@ class _ProfileGeneralPageState extends State<ProfileGeneralPage> {
     });
   }
 
-  void _selectBranch(Branch branch) {
-    setState(() => _selectedBranchId = branch.branchId);
-  }
-
   Future<void> _showBranchPicker(List<Branch> branches) async {
     final selectedBranch = await showModalBottomSheet<Branch>(
       context: context,
@@ -63,10 +61,10 @@ class _ProfileGeneralPageState extends State<ProfileGeneralPage> {
               const Text(
                 'ACTIVE BRANCH',
                 style: TextStyle(
-                  color: textTertiary,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1,
+                  color: Color(0xFF5D616A),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0.8,
                 ),
               ),
               const SizedBox(height: 12),
@@ -84,7 +82,7 @@ class _ProfileGeneralPageState extends State<ProfileGeneralPage> {
                       title: Text(
                         branch.name,
                         style: const TextStyle(
-                          color: textTertiary,
+                          color: ink,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
@@ -94,7 +92,7 @@ class _ProfileGeneralPageState extends State<ProfileGeneralPage> {
                         overflow: TextOverflow.ellipsis,
                       ),
                       trailing: isSelected
-                          ? const Icon(Icons.check, color: green)
+                          ? const Icon(Icons.check_rounded, color: green)
                           : null,
                       onTap: () => Navigator.of(context).pop(branch),
                     );
@@ -108,20 +106,23 @@ class _ProfileGeneralPageState extends State<ProfileGeneralPage> {
     );
 
     if (selectedBranch == null) return;
-    _selectBranch(selectedBranch);
+    setState(() => _selectedBranchId = selectedBranch.branchId);
   }
 
-  Future<void> _savePreferences(String branchId) async {
+  Future<void> _savePreferences(String? branchId) async {
     if (_isSaving) return;
     setState(() => _isSaving = true);
 
     try {
-      await context.read<BranchFacadeService>().setActiveBranchId(branchId);
+      if (branchId != null) {
+        await context.read<BranchFacadeService>().setActiveBranchId(branchId);
+      }
 
       if (!mounted) return;
       setState(() {
         _storedBranchId = branchId;
-        _selectedBranchId = branchId;
+        _storedEmailNotifications = _emailNotifications;
+        _storedPushNotifications = _pushNotifications;
         _isSaving = false;
       });
 
@@ -139,7 +140,11 @@ class _ProfileGeneralPageState extends State<ProfileGeneralPage> {
   }
 
   void _discardChanges() {
-    setState(() => _selectedBranchId = _storedBranchId);
+    setState(() {
+      _selectedBranchId = _storedBranchId;
+      _emailNotifications = _storedEmailNotifications;
+      _pushNotifications = _storedPushNotifications;
+    });
   }
 
   @override
@@ -148,30 +153,46 @@ class _ProfileGeneralPageState extends State<ProfileGeneralPage> {
       builder: (context, state) {
         final branches = _selectableBranches(state.branches);
         final selectedBranch = _selectedBranch(branches);
-        final hasSelectedBranch = selectedBranch != null;
-        final hasChanges = _selectedBranchId != _storedBranchId;
+        final hasChanges =
+            _selectedBranchId != _storedBranchId ||
+            _emailNotifications != _storedEmailNotifications ||
+            _pushNotifications != _storedPushNotifications;
 
-        return ListView(
-          padding: const EdgeInsets.fromLTRB(20, 22, 20, 32),
+        return Column(
           children: [
-            ActiveBranchCard(
-              isLoading: state.status == Status.loading,
-              branch: selectedBranch,
-              onTap: branches.isEmpty
-                  ? null
-                  : () => _showBranchPicker(branches),
+            Expanded(
+              child: ColoredBox(
+                color: const Color(0xFFF3F6F5),
+                child: ListView(
+                  padding: const EdgeInsets.fromLTRB(8, 18, 8, 20),
+                  children: [
+                    const _RegionalConfigurationCard(),
+                    const SizedBox(height: 18),
+                    _ActiveBranchCard(
+                      branch: selectedBranch,
+                      onTap: branches.isEmpty
+                          ? null
+                          : () => _showBranchPicker(branches),
+                    ),
+                    const SizedBox(height: 18),
+                    _CommunicationCard(
+                      emailEnabled: _emailNotifications,
+                      pushEnabled: _pushNotifications,
+                      onEmailChanged: (value) =>
+                          setState(() => _emailNotifications = value),
+                      onPushChanged: (value) =>
+                          setState(() => _pushNotifications = value),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            const SizedBox(height: 28),
-            _PreferencesButton(
-              label: 'Discard Changes',
-              isOutlined: true,
-              onPressed: hasChanges && !_isSaving ? _discardChanges : null,
-            ),
-            const SizedBox(height: 12),
-            _PreferencesButton(
-              label: _isSaving ? 'Saving...' : 'Save Preferences',
-              onPressed: hasSelectedBranch && !_isSaving
-                  ? () => _savePreferences(selectedBranch.branchId)
+            _PreferencesActions(
+              hasChanges: hasChanges,
+              isSaving: _isSaving,
+              onDiscard: hasChanges && !_isSaving ? _discardChanges : null,
+              onSave: !_isSaving
+                  ? () => _savePreferences(_selectedBranchId)
                   : null,
             ),
           ],
@@ -211,14 +232,14 @@ class _PreferencesButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDisabled = onPressed == null;
     final backgroundColor = isOutlined ? Colors.white : const Color(0xFF007A4D);
+    final isDisabled = onPressed == null;
     final foregroundColor = isOutlined
-        ? (isDisabled ? textSecondary : textTertiary)
+        ? (isDisabled ? muted : ink)
         : Colors.white;
 
     return SizedBox(
-      height: 58,
+      height: 56,
       width: double.infinity,
       child: ElevatedButton(
         onPressed: onPressed,
@@ -227,22 +248,357 @@ class _PreferencesButton extends StatelessWidget {
           backgroundColor: backgroundColor,
           disabledBackgroundColor: backgroundColor,
           foregroundColor: foregroundColor,
-          disabledForegroundColor: foregroundColor.withValues(alpha: 0.45),
+          disabledForegroundColor: foregroundColor.withValues(alpha: 0.55),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(14),
             side: BorderSide(
               color: isOutlined
-                  ? (isDisabled ? const Color(0xFFD0D2D8) : textSecondary)
+                  ? (isDisabled
+                        ? const Color(0xFFD1D5DB)
+                        : const Color(0xFF74777F))
                   : const Color(0xFF007A4D),
-              width: isOutlined ? 1.6 : 1,
+              width: isOutlined ? 2 : 1,
             ),
           ),
         ),
         child: Text(
           label,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
         ),
       ),
     );
+  }
+}
+
+class _PreferencesActions extends StatelessWidget {
+  const _PreferencesActions({
+    required this.hasChanges,
+    required this.isSaving,
+    required this.onDiscard,
+    required this.onSave,
+  });
+
+  final bool hasChanges;
+  final bool isSaving;
+  final VoidCallback? onDiscard;
+  final VoidCallback? onSave;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.fromLTRB(12, 14, 12, 18),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _PreferencesButton(
+            label: 'Discard Changes',
+            isOutlined: true,
+            onPressed: onDiscard,
+          ),
+          const SizedBox(height: 12),
+          _PreferencesButton(
+            label: isSaving ? 'Saving...' : 'Save Preferences',
+            onPressed: hasChanges ? onSave : null,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RegionalConfigurationCard extends StatelessWidget {
+  const _RegionalConfigurationCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return const _SettingsCard(
+      child: Column(
+        children: [
+          _CardHeader(label: 'REGIONAL CONFIGURATION'),
+          _SettingsDivider(),
+          _SelectionRow(label: 'Timezone', value: 'UTC -05:00 Eastern Time'),
+          _SettingsDivider(),
+          _SelectionRow(label: 'Currency', value: 'USD (\$)'),
+        ],
+      ),
+    );
+  }
+}
+
+class _ActiveBranchCard extends StatelessWidget {
+  const _ActiveBranchCard({required this.branch, required this.onTap});
+
+  final Branch? branch;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final title = branch?.name ?? 'No branches available';
+
+    return _SettingsCard(
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(22, 18, 16, 19),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const _SectionLabel('ACTIVE BRANCH'),
+                      const SizedBox(height: 4),
+                      Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: ink,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.chevron_right_rounded, color: muted, size: 30),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CommunicationCard extends StatelessWidget {
+  const _CommunicationCard({
+    required this.emailEnabled,
+    required this.pushEnabled,
+    required this.onEmailChanged,
+    required this.onPushChanged,
+  });
+
+  final bool emailEnabled;
+  final bool pushEnabled;
+  final ValueChanged<bool> onEmailChanged;
+  final ValueChanged<bool> onPushChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return _SettingsCard(
+      child: Column(
+        children: [
+          const _CardHeader(label: 'COMMUNICATION'),
+          const _SettingsDivider(),
+          _CommunicationRow(
+            label: 'Email Notifications',
+            enabled: emailEnabled,
+            onChanged: onEmailChanged,
+          ),
+          _CommunicationRow(
+            label: 'Push Notifications',
+            enabled: pushEnabled,
+            onChanged: onPushChanged,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SettingsCard extends StatelessWidget {
+  const _SettingsCard({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0D000000),
+            blurRadius: 18,
+            offset: Offset(0, 8),
+          ),
+        ],
+      ),
+      child: ClipRRect(borderRadius: BorderRadius.circular(18), child: child),
+    );
+  }
+}
+
+class _CardHeader extends StatelessWidget {
+  const _CardHeader({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(22, 20, 22, 18),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: _SectionLabel(label),
+      ),
+    );
+  }
+}
+
+class _SectionLabel extends StatelessWidget {
+  const _SectionLabel(this.label);
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      label,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(
+        color: Color(0xFF5D616A),
+        fontSize: 14,
+        fontWeight: FontWeight.w900,
+        letterSpacing: 0.8,
+      ),
+    );
+  }
+}
+
+class _SelectionRow extends StatelessWidget {
+  const _SelectionRow({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(22, 15, 16, 16),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    color: ink,
+                    fontSize: 21,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Color(0xFF777B85),
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          const Icon(Icons.chevron_right_rounded, color: muted, size: 30),
+        ],
+      ),
+    );
+  }
+}
+
+class _CommunicationRow extends StatelessWidget {
+  const _CommunicationRow({
+    required this.label,
+    required this.enabled,
+    required this.onChanged,
+  });
+
+  final String label;
+  final bool enabled;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () => onChanged(!enabled),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(22, 15, 22, 15),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: ink,
+                  fontSize: 21,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 0,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            _StaticSwitch(enabled: enabled),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StaticSwitch extends StatelessWidget {
+  const _StaticSwitch({required this.enabled});
+
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 160),
+      width: 62,
+      height: 32,
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        color: enabled ? const Color(0xFF007A4D) : const Color(0xFFE1E5EB),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: AnimatedAlign(
+        duration: const Duration(milliseconds: 160),
+        alignment: enabled ? Alignment.centerRight : Alignment.centerLeft,
+        child: Container(
+          width: 26,
+          height: 26,
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SettingsDivider extends StatelessWidget {
+  const _SettingsDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Divider(color: Color(0xFFE2E4E8), height: 1, thickness: 1);
   }
 }

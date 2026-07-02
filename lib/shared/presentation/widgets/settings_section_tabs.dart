@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:restock/shared/presentation/utils/ui/theme.dart';
 
-enum SettingsSection { general, profile, branches }
+enum SettingsSection { general, profile, business, branches }
 
 class SettingsSectionTabs extends StatelessWidget {
   const SettingsSectionTabs({required this.selectedSection, super.key});
@@ -13,24 +13,39 @@ class SettingsSectionTabs extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: card,
-      child: Row(
-        children: [
-          _TabItem(
-            label: 'GENERAL',
-            selected: selectedSection == SettingsSection.general,
-            onTap: () => context.go('/settings/general'),
-          ),
-          _TabItem(
-            label: 'PROFILE',
-            selected: selectedSection == SettingsSection.profile,
-            onTap: () => context.go('/settings/profile'),
-          ),
-          _TabItem(
-            label: 'BRANCHES',
-            selected: selectedSection == SettingsSection.branches,
-            onTap: () => context.go('/settings'),
-          ),
-        ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minWidth: constraints.maxWidth),
+              child: Row(
+                children: [
+                  _TabItem(
+                    label: 'GENERAL',
+                    selected: selectedSection == SettingsSection.general,
+                    onTap: () => context.go('/settings/general'),
+                  ),
+                  _TabItem(
+                    label: 'PROFILE',
+                    selected: selectedSection == SettingsSection.profile,
+                    onTap: () => context.go('/settings/profile'),
+                  ),
+                  _TabItem(
+                    label: 'BUSINESS',
+                    selected: selectedSection == SettingsSection.business,
+                    onTap: () => context.go('/settings/business'),
+                  ),
+                  _TabItem(
+                    label: 'BRANCHES',
+                    selected: selectedSection == SettingsSection.branches,
+                    onTap: () => context.go('/settings'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
