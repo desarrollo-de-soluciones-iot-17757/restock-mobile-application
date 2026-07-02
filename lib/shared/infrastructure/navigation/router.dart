@@ -14,6 +14,8 @@ import 'package:restock/iam/presentation/views/sign_in_form/bloc/sign_in_form_bl
 import 'package:restock/iam/presentation/views/sign_in_form/pages/sign_in_form_screen.dart';
 import 'package:restock/injections.dart';
 import 'package:restock/profiles/presentation/general/profile_general_page.dart';
+import 'package:restock/profiles/presentation/profile/bloc/profile_bloc.dart';
+import 'package:restock/profiles/presentation/profile/bloc/profile_event.dart';
 import 'package:restock/profiles/presentation/profile/profile_page.dart';
 import 'package:restock/resources/application/branch_facade_service.dart';
 import 'package:restock/resources/application/custom_supply_facade_service.dart';
@@ -62,11 +64,18 @@ GoRouter buildRouter(AuthStatusNotifier authNotifier) => GoRouter(
     ),
     GoRoute(
       path: '/notifications',
-      builder: (_, _) => const NotificationCenterScreen(),
+      builder: (_, _) => BlocProvider<ProfileBloc>(
+        create: (_) =>
+            serviceLocator<ProfileBloc>()..add(const ProfileStarted()),
+        child: const NotificationCenterScreen(),
+      ),
     ),
     StatefulShellRoute.indexedStack(
-      builder: (context, state, navigationShell) =>
-          ShellScaffold(navigationShell: navigationShell),
+      builder: (context, state, navigationShell) => BlocProvider<ProfileBloc>(
+        create: (_) =>
+            serviceLocator<ProfileBloc>()..add(const ProfileStarted()),
+        child: ShellScaffold(navigationShell: navigationShell),
+      ),
       branches: [
         StatefulShellBranch(
           routes: [
