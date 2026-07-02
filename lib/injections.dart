@@ -5,6 +5,11 @@ import 'package:restock/analytics/domain/repositories/analytics_repository.dart'
 import 'package:restock/analytics/infrastructure/data_sources/analytics_remote_data_provider.dart';
 import 'package:restock/analytics/infrastructure/repositories/analytics_repository_impl.dart';
 import 'package:restock/analytics/presentation/views/dashboard/bloc/dashboard_bloc.dart';
+import 'package:restock/business/application/business_facade_service.dart';
+import 'package:restock/business/domain/repository/business_repository.dart';
+import 'package:restock/business/infrastructure/data_sources/business_remote_data_provider.dart';
+import 'package:restock/business/infrastructure/repository/business_repository_impl.dart';
+import 'package:restock/business/presentation/bloc/business_bloc.dart';
 import 'package:restock/communications/application/communications_facade_service.dart';
 import 'package:restock/communications/domain/repositories/notification_repository.dart';
 import 'package:restock/communications/infrastructure/data_sources/notification_remote_data_provider.dart';
@@ -30,6 +35,11 @@ import 'package:restock/iam/infrastructure/data_sources/auth_remote_data_provide
 import 'package:restock/iam/infrastructure/interceptor/auth_http_client.dart';
 import 'package:restock/iam/infrastructure/repositories/auth_repository_impl.dart';
 import 'package:restock/iam/presentation/views/sign_in_form/bloc/sign_in_form_bloc.dart';
+import 'package:restock/profiles/application/profiles_facade_service.dart';
+import 'package:restock/profiles/domain/repository/profile_repository.dart';
+import 'package:restock/profiles/infrastructure/data_sources/profile_remote_data_provider.dart';
+import 'package:restock/profiles/infrastructure/repository/profile_repository_impl.dart';
+import 'package:restock/profiles/presentation/profile/bloc/profile_bloc.dart';
 import 'package:restock/resources/application/batch_facade_service.dart';
 import 'package:restock/resources/application/branch_facade_service.dart';
 import 'package:restock/resources/application/custom_supply_facade_service.dart';
@@ -68,6 +78,7 @@ Future<void> setupDependencies() async {
   await localDatabase();
   await iamDependencies();
   await profileDependencies();
+  await businessDependencies();
   await rmDependencies();
   await analyticsDependencies();
   await communicationsDependencies();
@@ -140,8 +151,54 @@ Future<void> iamDependencies() async {
 
 /// Configures the dependencies for the Profile context.
 Future<void> profileDependencies() async {
-  // For example:
-  // serviceLocator.registerLazySingleton<YourProfileService>(() => YourProfileServiceImpl());
+  serviceLocator.registerLazySingleton<ProfileRemoteDataProvider>(
+    () => ProfileRemoteDataProvider(http: serviceLocator<AuthHttpClient>()),
+  );
+
+  serviceLocator.registerLazySingleton<ProfileRepository>(
+    () => ProfileRepositoryImpl(
+      profileRemoteDataProvider: serviceLocator<ProfileRemoteDataProvider>(),
+    ),
+  );
+
+  serviceLocator.registerLazySingleton<ProfilesFacadeService>(
+    () => ProfilesFacadeService(
+      profileRepository: serviceLocator<ProfileRepository>(),
+      tokenStorage: serviceLocator<TokenStorage>(),
+    ),
+  );
+
+  serviceLocator.registerFactory<ProfileBloc>(
+    () => ProfileBloc(
+      profilesFacadeService: serviceLocator<ProfilesFacadeService>(),
+    ),
+  );
+}
+
+/// Configures the dependencies for the Business context.
+Future<void> businessDependencies() async {
+  serviceLocator.registerLazySingleton<BusinessRemoteDataProvider>(
+    () => BusinessRemoteDataProvider(http: serviceLocator<AuthHttpClient>()),
+  );
+
+  serviceLocator.registerLazySingleton<BusinessRepository>(
+    () => BusinessRepositoryImpl(
+      businessRemoteDataProvider: serviceLocator<BusinessRemoteDataProvider>(),
+    ),
+  );
+
+  serviceLocator.registerLazySingleton<BusinessFacadeService>(
+    () => BusinessFacadeService(
+      businessRepository: serviceLocator<BusinessRepository>(),
+      tokenStorage: serviceLocator<TokenStorage>(),
+    ),
+  );
+
+  serviceLocator.registerFactory<BusinessBloc>(
+    () => BusinessBloc(
+      businessFacadeService: serviceLocator<BusinessFacadeService>(),
+    ),
+  );
 }
 
 /// Configures the dependencies for the Analytics context.

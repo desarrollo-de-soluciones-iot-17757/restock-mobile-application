@@ -27,6 +27,12 @@ class SignInResponse {
   }
 
   Auth toDomain() {
-    return Auth(id: id, email: email, role: role, token: token, accountId: accountId);
+    return Auth(
+      id: id,
+      email: email,
+      role: role,
+      token: token,
+      accountId: accountId,
+    );
   }
 }
