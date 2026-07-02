@@ -163,9 +163,16 @@ class NotificationRemoteDataProvider {
   }
 
   Future<List<StockThresholdAlertModel>> evaluateStockThresholds() async {
+    final accountId = await tokenStorage.readAccountId();
+    if (accountId == null) {
+      throw Exception('Account ID not found');
+    }
+
     final uri = Uri.parse(
       '${ApiConstants.baseUrl}${CommunicationsApiConstants.stockThresholdsEvaluate}',
-    );
+    ).replace(queryParameters: {
+      'accountId': accountId,
+    });
 
     final response = await http.post(
       uri,
