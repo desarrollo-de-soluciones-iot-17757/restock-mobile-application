@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:restock/communications/presentation/widgets/notification_button.dart';
 import 'package:restock/injections.dart';
+import 'package:restock/profiles/presentation/profile/bloc/profile_bloc.dart';
+import 'package:restock/profiles/presentation/profile/bloc/profile_state.dart';
 import 'package:restock/profiles/presentation/widgets/profile_avatar.dart';
 import 'package:restock/shared/infrastructure/services/auth_status_notifier.dart';
 
@@ -72,9 +75,14 @@ class RestockAppBar extends StatelessWidget implements PreferredSizeWidget {
                   ),
                 ),
               ],
-              child: const ProfileAvatar(
-                imageUrl:
-                    'https://pbs.twimg.com/profile_images/1481345033878085634/r4uZxGeb_400x400.jpg',
+              child: BlocBuilder<ProfileBloc, ProfileState>(
+                buildWhen: (previous, current) =>
+                    previous.profile?.avatarUrl != current.profile?.avatarUrl ||
+                    previous.image != current.image,
+                builder: (context, state) => ProfileAvatar(
+                  imageUrl: state.profile?.avatarUrl,
+                  image: state.image,
+                ),
               ),
             ),
           ],

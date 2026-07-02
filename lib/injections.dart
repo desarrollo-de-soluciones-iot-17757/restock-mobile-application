@@ -30,6 +30,11 @@ import 'package:restock/iam/infrastructure/data_sources/auth_remote_data_provide
 import 'package:restock/iam/infrastructure/interceptor/auth_http_client.dart';
 import 'package:restock/iam/infrastructure/repositories/auth_repository_impl.dart';
 import 'package:restock/iam/presentation/views/sign_in_form/bloc/sign_in_form_bloc.dart';
+import 'package:restock/profiles/application/profiles_facade_service.dart';
+import 'package:restock/profiles/domain/repository/profile_repository.dart';
+import 'package:restock/profiles/infrastructure/data_sources/profile_remote_data_provider.dart';
+import 'package:restock/profiles/infrastructure/repository/profile_repository_impl.dart';
+import 'package:restock/profiles/presentation/profile/bloc/profile_bloc.dart';
 import 'package:restock/resources/application/batch_facade_service.dart';
 import 'package:restock/resources/application/branch_facade_service.dart';
 import 'package:restock/resources/application/custom_supply_facade_service.dart';
@@ -140,8 +145,28 @@ Future<void> iamDependencies() async {
 
 /// Configures the dependencies for the Profile context.
 Future<void> profileDependencies() async {
-  // For example:
-  // serviceLocator.registerLazySingleton<YourProfileService>(() => YourProfileServiceImpl());
+  serviceLocator.registerLazySingleton<ProfileRemoteDataProvider>(
+    () => ProfileRemoteDataProvider(http: serviceLocator<AuthHttpClient>()),
+  );
+
+  serviceLocator.registerLazySingleton<ProfileRepository>(
+    () => ProfileRepositoryImpl(
+      profileRemoteDataProvider: serviceLocator<ProfileRemoteDataProvider>(),
+    ),
+  );
+
+  serviceLocator.registerLazySingleton<ProfilesFacadeService>(
+    () => ProfilesFacadeService(
+      profileRepository: serviceLocator<ProfileRepository>(),
+      tokenStorage: serviceLocator<TokenStorage>(),
+    ),
+  );
+
+  serviceLocator.registerFactory<ProfileBloc>(
+    () => ProfileBloc(
+      profilesFacadeService: serviceLocator<ProfilesFacadeService>(),
+    ),
+  );
 }
 
 /// Configures the dependencies for the Analytics context.
