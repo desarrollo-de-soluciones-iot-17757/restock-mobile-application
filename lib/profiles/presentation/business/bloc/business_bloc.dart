@@ -1,8 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:restock/business/application/business_facade_service.dart';
-import 'package:restock/business/presentation/bloc/business_event.dart';
-import 'package:restock/business/presentation/bloc/business_state.dart';
+import 'package:restock/profiles/application/business_facade_service.dart';
 import 'package:restock/shared/presentation/utils/enums/bloc_status.dart';
+
+import 'business_event.dart';
+import 'business_state.dart';
 
 class BusinessBloc extends Bloc<BusinessEvent, BusinessState> {
   BusinessBloc({required this.businessFacadeService})

@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:restock/business/presentation/bloc/business_bloc.dart';
-import 'package:restock/business/presentation/bloc/business_event.dart';
-import 'package:restock/business/presentation/bloc/business_state.dart';
-import 'package:restock/business/presentation/widgets/business_error_view.dart';
-import 'package:restock/business/presentation/widgets/business_information_card.dart';
-import 'package:restock/business/presentation/widgets/business_loading_view.dart';
+import 'package:restock/profiles/presentation/business/widgets/business_error_view.dart';
+import 'package:restock/profiles/presentation/business/widgets/business_information_card.dart';
+import 'package:restock/profiles/presentation/business/widgets/business_loading_view.dart';
 import 'package:restock/profiles/presentation/profile/widgets/profile_action_buttons.dart';
 import 'package:restock/shared/presentation/utils/enums/bloc_status.dart';
+
+import 'bloc/business_bloc.dart';
+import 'bloc/business_event.dart';
+import 'bloc/business_state.dart';
 
 class BusinessPage extends StatelessWidget {
   const BusinessPage({super.key});

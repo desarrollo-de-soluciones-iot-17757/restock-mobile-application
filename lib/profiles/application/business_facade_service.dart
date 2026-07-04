@@ -1,7 +1,7 @@
 import 'package:image_picker/image_picker.dart';
-import 'package:restock/business/domain/commands/update_business_command.dart';
-import 'package:restock/business/domain/entities/business.dart';
-import 'package:restock/business/domain/repository/business_repository.dart';
+import 'package:restock/profiles/domain/commands/update_business_command.dart';
+import 'package:restock/profiles/domain/entities/business.dart';
+import 'package:restock/profiles/domain/repository/business_repository.dart';
 import 'package:restock/shared/infrastructure/storage/token_storage.dart';
 
 class BusinessFacadeService {

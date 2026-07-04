@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:restock/business/presentation/bloc/business_event.dart';
-import 'package:restock/business/presentation/bloc/business_state.dart';
-import 'package:restock/business/presentation/widgets/business_picture_field.dart';
 import 'package:restock/profiles/presentation/profile/widgets/profile_labeled_text_field.dart';
+
+import '../bloc/business_event.dart';
+import '../bloc/business_state.dart';
+import 'business_picture_field.dart';
 
 class BusinessInformationCard extends StatelessWidget {
   const BusinessInformationCard({
