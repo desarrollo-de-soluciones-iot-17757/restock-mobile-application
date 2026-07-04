@@ -1,6 +1,6 @@
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
-import 'package:restock/business/domain/commands/update_business_command.dart';
+import 'package:restock/profiles/domain/commands/update_business_command.dart';
 
 class UpdateBusinessRequest {
   const UpdateBusinessRequest({

@@ -1,8 +1,8 @@
-import 'package:restock/business/domain/commands/update_business_command.dart';
-import 'package:restock/business/domain/entities/business.dart';
-import 'package:restock/business/domain/repository/business_repository.dart';
-import 'package:restock/business/infrastructure/data_sources/business_remote_data_provider.dart';
-import 'package:restock/business/infrastructure/models/update_business_request.dart';
+import 'package:restock/profiles/domain/commands/update_business_command.dart';
+import 'package:restock/profiles/domain/entities/business.dart';
+import 'package:restock/profiles/domain/repository/business_repository.dart';
+import 'package:restock/profiles/infrastructure/data_sources/business_remote_data_provider.dart';
+import 'package:restock/profiles/infrastructure/models/update_business_request.dart';
 
 class BusinessRepositoryImpl implements BusinessRepository {
   const BusinessRepositoryImpl({required this.businessRemoteDataProvider});

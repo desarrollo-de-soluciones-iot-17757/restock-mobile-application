@@ -1,4 +1,4 @@
-import 'package:restock/business/domain/entities/business.dart';
+import 'package:restock/profiles/domain/entities/business.dart';
 
 class BusinessModel extends Business {
   const BusinessModel({

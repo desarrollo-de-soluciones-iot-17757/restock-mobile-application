@@ -3,9 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:restock/analytics/presentation/views/dashboard/bloc/dashboard_bloc.dart';
 import 'package:restock/analytics/presentation/views/dashboard/bloc/dashboard_event.dart';
 import 'package:restock/analytics/presentation/views/dashboard/pages/dashboard_screen.dart';
-import 'package:restock/business/presentation/bloc/business_bloc.dart';
-import 'package:restock/business/presentation/bloc/business_event.dart';
-import 'package:restock/business/presentation/business_page.dart';
+import 'package:restock/profiles/presentation/business/business_page.dart';
 import 'package:restock/communications/presentation/notification_center/notification_center_screen.dart';
 import 'package:restock/devices/presentation/views/device_detail/bloc/device_detail_bloc.dart';
 import 'package:restock/devices/presentation/views/device_detail/bloc/device_detail_event.dart';
@@ -44,6 +42,8 @@ import 'package:restock/resources/presentation/inventory_management/pages/invent
 import 'package:restock/shared/infrastructure/services/auth_status_notifier.dart';
 import 'package:restock/shared/presentation/widgets/settings_scaffold.dart';
 import 'package:restock/shared/presentation/widgets/settings_section_tabs.dart';
+import '../../../profiles/presentation/business/bloc/business_bloc.dart';
+import '../../../profiles/presentation/business/bloc/business_event.dart';
 import '../../presentation/widgets/shell_scaffold.dart';
 
 GoRouter buildRouter(AuthStatusNotifier authNotifier) => GoRouter(
