@@ -5,11 +5,10 @@ import 'package:restock/analytics/domain/repositories/analytics_repository.dart'
 import 'package:restock/analytics/infrastructure/data_sources/analytics_remote_data_provider.dart';
 import 'package:restock/analytics/infrastructure/repositories/analytics_repository_impl.dart';
 import 'package:restock/analytics/presentation/views/dashboard/bloc/dashboard_bloc.dart';
-import 'package:restock/business/application/business_facade_service.dart';
-import 'package:restock/business/domain/repository/business_repository.dart';
-import 'package:restock/business/infrastructure/data_sources/business_remote_data_provider.dart';
-import 'package:restock/business/infrastructure/repository/business_repository_impl.dart';
-import 'package:restock/business/presentation/bloc/business_bloc.dart';
+import 'package:restock/profiles/application/business_facade_service.dart';
+import 'package:restock/profiles/domain/repository/business_repository.dart';
+import 'package:restock/profiles/infrastructure/data_sources/business_remote_data_provider.dart';
+import 'package:restock/profiles/infrastructure/repositories/business_repository_impl.dart';
 import 'package:restock/communications/application/communications_facade_service.dart';
 import 'package:restock/communications/domain/repositories/notification_repository.dart';
 import 'package:restock/communications/infrastructure/data_sources/notification_remote_data_provider.dart';
@@ -18,6 +17,7 @@ import 'package:restock/communications/infrastructure/notifications/push_notific
 import 'package:restock/communications/infrastructure/repositories/notification_repository_impl.dart';
 import 'package:restock/devices/application/device_facade_service.dart';
 import 'package:restock/devices/application/device_threshold_facade_service.dart';
+import 'package:restock/profiles/presentation/business/bloc/business_bloc.dart';
 import 'package:restock/resources/domain/repositories/batch_repository.dart';
 import 'package:restock/devices/domain/repositories/device_repository.dart';
 import 'package:restock/devices/domain/repositories/device_threshold_repository.dart';
@@ -38,7 +38,7 @@ import 'package:restock/iam/presentation/views/sign_in_form/bloc/sign_in_form_bl
 import 'package:restock/profiles/application/profiles_facade_service.dart';
 import 'package:restock/profiles/domain/repository/profile_repository.dart';
 import 'package:restock/profiles/infrastructure/data_sources/profile_remote_data_provider.dart';
-import 'package:restock/profiles/infrastructure/repository/profile_repository_impl.dart';
+import 'package:restock/profiles/infrastructure/repositories/profile_repository_impl.dart';
 import 'package:restock/profiles/presentation/profile/bloc/profile_bloc.dart';
 import 'package:restock/resources/application/batch_facade_service.dart';
 import 'package:restock/resources/application/branch_facade_service.dart';

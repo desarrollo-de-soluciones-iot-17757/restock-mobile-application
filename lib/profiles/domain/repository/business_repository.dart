@@ -1,5 +1,5 @@
-import 'package:restock/business/domain/commands/update_business_command.dart';
-import 'package:restock/business/domain/entities/business.dart';
+import 'package:restock/profiles/domain/commands/update_business_command.dart';
+import 'package:restock/profiles/domain/entities/business.dart';
 
 abstract class BusinessRepository {
   Future<Business> getBusinessByAccountId(String accountId);

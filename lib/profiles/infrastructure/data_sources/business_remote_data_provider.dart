@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as pkg_http;
-import 'package:restock/business/infrastructure/models/business_model.dart';
-import 'package:restock/business/infrastructure/models/update_business_request.dart';
-import 'package:restock/business/infrastructure/repositories/constants/business_api_constants.dart';
+import 'package:restock/profiles/infrastructure/models/business_model.dart';
+import 'package:restock/profiles/infrastructure/models/update_business_request.dart';
+import 'package:restock/profiles/infrastructure/repositories/constants/business_api_constants.dart';
 import 'package:restock/iam/infrastructure/interceptor/auth_http_client.dart';
 import 'package:restock/shared/infrastructure/repositories/constants/api_constants.dart';
 

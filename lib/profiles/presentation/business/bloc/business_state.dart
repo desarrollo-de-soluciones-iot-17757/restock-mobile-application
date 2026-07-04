@@ -1,5 +1,5 @@
 import 'package:image_picker/image_picker.dart';
-import 'package:restock/business/domain/entities/business.dart';
+import 'package:restock/profiles/domain/entities/business.dart';
 import 'package:restock/shared/presentation/utils/enums/bloc_status.dart';
 
 class BusinessState {
