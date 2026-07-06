@@ -106,23 +106,24 @@ class DeviceFacadeService {
     required String batchId,
   }) async {
     try {
-      // 1. Assign batch
+      final branchId = await _resolveDefaultBranchId();
+
+      // 1. Assign branch so backend can validate the batch belongs there.
+      await deviceRepository.assignBranch(
+        AssignBranchCommand(deviceId: deviceId, branchId: branchId),
+      );
+
+      // 2. Assign batch
       await deviceRepository.assignBatch(
         AssignBatchCommand(deviceId: deviceId, batchId: batchId),
       );
 
-      // 2. Add default specifications silently
+      // 3. Add default specifications silently
       await deviceRepository.updateSpecifications(
         UpdateDeviceSpecificationsCommand(
           deviceId: deviceId,
           specifications: DeviceSpecifications.defaults,
         ),
-      );
-
-      // 3. Assign branch — resolve default branchId
-      final branchId = await _resolveDefaultBranchId();
-      await deviceRepository.assignBranch(
-        AssignBranchCommand(deviceId: deviceId, branchId: branchId),
       );
 
       return await deviceRepository.getDeviceById(deviceId);
