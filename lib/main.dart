@@ -33,6 +33,10 @@ Future<void> main() async {
   unawaited(_initializePushNotifications());
 }
 
+/// Initializes the push notification service asynchronously.
+///
+/// Setting up callbacks for foreground messaging and tap interactions.
+/// Catches and logs any exceptions that occur during setup to prevent blocking main flow.
 Future<void> _initializePushNotifications() async {
   try {
     await di.serviceLocator<PushNotificationService>().initialize(

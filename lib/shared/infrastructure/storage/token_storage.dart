@@ -1,20 +1,35 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-/// Used for storing ids and token for fast access through the application.
+/// A secure storage helper used for storing authentication tokens, account IDs,
+/// user IDs, active branch IDs, and first-time login flags.
 class TokenStorage {
+  /// The underlying [FlutterSecureStorage] instance used for encrypted key-value storage.
   late final FlutterSecureStorage _storage;
 
+  /// Creates a new instance of [TokenStorage] and initializes the secure storage.
   TokenStorage() {
     _storage = const FlutterSecureStorage();
   }
 
-  final _key = 'token';
-  final _accountId = 'account_id';
-  final _userId = 'user_id';
-  final _branchId = 'branch_id';
-  final _isFirstLogin = 'is_first_login';
+  /// Key used to store the authentication token.
+  static const String _key = 'token';
 
-  /// Method for saving data into the storage.
+  /// Key used to store the unique account identifier.
+  static const String _accountId = 'account_id';
+
+  /// Key used to store the authenticated user identifier.
+  static const String _userId = 'user_id';
+
+  /// Key used to store the selected active branch identifier.
+  static const String _branchId = 'branch_id';
+
+  /// Key used to store the flag indicating if it's the user's first login.
+  static const String _isFirstLogin = 'is_first_login';
+
+  /// Saves the essential authentication details and metadata to secure storage.
+  ///
+  /// The [token] and [accountId] are required. Optional parameters [userId]
+  /// and [branchId] will be stored if provided.
   Future<void> save(
     String token,
     String accountId, {
@@ -35,43 +50,53 @@ class TokenStorage {
     await _storage.write(key: _isFirstLogin, value: 'true');
   }
 
-  /// Method for saving the selected branch id into the storage.
+  /// Saves the selected [branchId] to secure storage.
   Future<void> saveBranchId(String branchId) async {
     await _storage.write(key: _branchId, value: branchId);
   }
 
-  /// Method for reading the token from the storage with a special key.
+  /// Reads the stored authentication token from secure storage.
+  ///
+  /// Returns `null` if no token is found.
   Future<String?> readToken() async {
     return await _storage.read(key: _key);
   }
 
-  /// Method for reading the account id from the storage with a special key.
+  /// Reads the stored account ID from secure storage.
+  ///
+  /// Returns `null` if no account ID is found.
   Future<String?> readAccountId() async {
     return await _storage.read(key: _accountId);
   }
 
-  /// Method for reading the user id from the storage with a special key.
+  /// Reads the stored user ID from secure storage.
+  ///
+  /// Returns `null` if no user ID is found.
   Future<String?> readUserId() async {
     return await _storage.read(key: _userId);
   }
 
-  /// Method for reading the branch id from the storage with a special key.
+  /// Reads the stored branch ID from secure storage.
+  ///
+  /// Returns `null` if no branch ID is found.
   Future<String?> readBranchId() async {
     return await _storage.read(key: _branchId);
   }
 
-  /// Method for determining a first login situation in the application.
+  /// Determines whether this is the user's first login.
+  ///
+  /// Returns `true` if the first login flag is set to 'true'.
   Future<bool> isFirstLogin() async {
     final value = await _storage.read(key: _isFirstLogin);
     return value == 'true';
   }
 
-  /// Method for marking a login as complete for the application.
+  /// Marks the user's login as completed, setting the first login flag to false.
   Future<void> markLoginComplete() async {
     await _storage.write(key: _isFirstLogin, value: 'false');
   }
 
-  /// Method for deleting data from the storage.
+  /// Clears all stored authentication and session data from secure storage.
   Future<void> delete() async {
     await _storage.delete(key: _key);
     await _storage.delete(key: _accountId);

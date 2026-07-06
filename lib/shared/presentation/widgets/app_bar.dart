@@ -12,10 +12,13 @@ import 'package:restock/shared/infrastructure/services/auth_status_notifier.dart
 ///
 /// This AppBar includes a title, centered notification icon with badge, and a user profile avatar.
 class RestockAppBar extends StatelessWidget implements PreferredSizeWidget {
+  /// Creates a [RestockAppBar] widget.
   const RestockAppBar({super.key});
 
+  /// The dark background color matching the application theme.
   static const Color _bg = Color(0xFF151C2A);
 
+  /// Defines the preferred size of the app bar, which is 80 units high.
   @override
   Size get preferredSize => const Size.fromHeight(80);
 
@@ -91,6 +94,9 @@ class RestockAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
+  /// Displays a confirmation bottom sheet modal to confirm sign-out.
+  ///
+  /// If confirmed, it logs the user out using [AuthStatusNotifier.signOut].
   Future<void> _confirmSignOut(BuildContext context) async {
     final shouldSignOut = await showModalBottomSheet<bool>(
       context: context,
@@ -204,4 +210,8 @@ class RestockAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 }
 
-enum _AccountAction { signOut }
+/// Actions representing available options in the account options popup menu.
+enum _AccountAction {
+  /// Signs the user out of the application and clears secure credentials.
+  signOut
+}
