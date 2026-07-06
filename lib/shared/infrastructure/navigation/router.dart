@@ -46,6 +46,12 @@ import '../../../profiles/presentation/business/bloc/business_bloc.dart';
 import '../../../profiles/presentation/business/bloc/business_event.dart';
 import '../../presentation/widgets/shell_scaffold.dart';
 
+/// Builds and configures the application [GoRouter] instance.
+///
+/// It uses [authNotifier] as a [Listenable] to automatically trigger redirects when
+/// the user's authentication status changes. If the user is not logged in and attempts
+/// to access a protected route, they are redirected to `/login`. If they are logged in
+/// and try to access the login page, they are redirected to `/inventory`.
 GoRouter buildRouter(AuthStatusNotifier authNotifier) => GoRouter(
   initialLocation: '/overview',
   refreshListenable: authNotifier,
@@ -276,6 +282,9 @@ GoRouter buildRouter(AuthStatusNotifier authNotifier) => GoRouter(
   ],
 );
 
+/// Maps a URL path string to its corresponding [SettingsSection] enum value.
+///
+/// Used for maintaining current tab highlights and configurations on the Settings page.
 SettingsSection _settingsSectionFor(String path) {
   return switch (path) {
     '/settings/general' => SettingsSection.general,
