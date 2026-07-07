@@ -4,6 +4,7 @@ import 'package:restock/devices/application/device_threshold_facade_service.dart
 import 'package:restock/devices/domain/entities/device.dart';
 import 'package:restock/devices/presentation/views/device_detail/bloc/device_detail_event.dart';
 import 'package:restock/devices/presentation/views/device_detail/bloc/device_detail_state.dart';
+import 'package:restock/shared/infrastructure/errors/api_error_parser.dart';
 import 'package:restock/shared/presentation/utils/enums/bloc_status.dart';
 
 class DeviceDetailBloc extends Bloc<DeviceDetailEvent, DeviceDetailState> {
@@ -25,10 +26,14 @@ class DeviceDetailBloc extends Bloc<DeviceDetailEvent, DeviceDetailState> {
     DeviceDetailFetched event,
     Emitter<DeviceDetailState> emit,
   ) async {
-    emit(state.copyWith(status: Status.loading));
+    emit(state.copyWith(status: Status.loading, clearErrorMessage: true));
     try {
       final device = await deviceFacadeService.getDeviceById(event.deviceId);
-      var newState = state.copyWith(status: Status.success, device: device);
+      var newState = state.copyWith(
+        status: Status.success,
+        device: device,
+        clearErrorMessage: true,
+      );
       if (device.supplyThresholdId != null) {
         final threshold = await deviceThresholdFacadeService.getThresholdById(
           device.supplyThresholdId!,
@@ -53,7 +58,7 @@ class DeviceDetailBloc extends Bloc<DeviceDetailEvent, DeviceDetailState> {
     final deviceId = state.device?.deviceId;
     if (deviceId == null) return;
 
-    emit(state.copyWith(isSubmitting: true));
+    emit(state.copyWith(isSubmitting: true, clearErrorMessage: true));
     try {
       final updated = await deviceFacadeService.assignBatchForOnboarding(
         deviceId: deviceId,
@@ -63,6 +68,7 @@ class DeviceDetailBloc extends Bloc<DeviceDetailEvent, DeviceDetailState> {
         status: Status.success,
         device: updated,
         isSubmitting: false,
+        clearErrorMessage: true,
       );
       if (updated.supplyThresholdId != null) {
         try {
@@ -74,7 +80,15 @@ class DeviceDetailBloc extends Bloc<DeviceDetailEvent, DeviceDetailState> {
       }
       emit(newState);
     } catch (e) {
-      emit(state.copyWith(isSubmitting: false, errorMessage: e.toString()));
+      emit(
+        state.copyWith(
+          isSubmitting: false,
+          errorMessage: ApiErrorParser.parse(
+            e,
+            fallback: 'Failed to assign batch',
+          ),
+        ),
+      );
     }
   }
 
@@ -85,7 +99,7 @@ class DeviceDetailBloc extends Bloc<DeviceDetailEvent, DeviceDetailState> {
     final deviceId = state.device?.deviceId;
     if (deviceId == null) return;
 
-    emit(state.copyWith(isSubmitting: true));
+    emit(state.copyWith(isSubmitting: true, clearErrorMessage: true));
     try {
       final updated = await deviceFacadeService.calibrateDevice(
         deviceId: deviceId,
@@ -96,10 +110,19 @@ class DeviceDetailBloc extends Bloc<DeviceDetailEvent, DeviceDetailState> {
           status: Status.success,
           device: updated,
           isSubmitting: false,
+          clearErrorMessage: true,
         ),
       );
     } catch (e) {
-      emit(state.copyWith(isSubmitting: false, errorMessage: e.toString()));
+      emit(
+        state.copyWith(
+          isSubmitting: false,
+          errorMessage: ApiErrorParser.parse(
+            e,
+            fallback: 'Failed to calibrate device',
+          ),
+        ),
+      );
     }
   }
 
@@ -110,7 +133,7 @@ class DeviceDetailBloc extends Bloc<DeviceDetailEvent, DeviceDetailState> {
     final device = state.device;
     if (device == null) return;
 
-    emit(state.copyWith(isSubmitting: true));
+    emit(state.copyWith(isSubmitting: true, clearErrorMessage: true));
     try {
       await deviceFacadeService.unlinkDevice(device.deviceId);
       final updated = await deviceFacadeService.getDeviceById(device.deviceId);
@@ -119,10 +142,19 @@ class DeviceDetailBloc extends Bloc<DeviceDetailEvent, DeviceDetailState> {
           status: Status.success,
           device: updated,
           isSubmitting: false,
+          clearErrorMessage: true,
         ),
       );
     } catch (e) {
-      emit(state.copyWith(isSubmitting: false, errorMessage: e.toString()));
+      emit(
+        state.copyWith(
+          isSubmitting: false,
+          errorMessage: ApiErrorParser.parse(
+            e,
+            fallback: 'Failed to unlink device',
+          ),
+        ),
+      );
     }
   }
 
@@ -133,7 +165,7 @@ class DeviceDetailBloc extends Bloc<DeviceDetailEvent, DeviceDetailState> {
     final device = state.device;
     if (device == null) return;
 
-    emit(state.copyWith(isSubmitting: true));
+    emit(state.copyWith(isSubmitting: true, clearErrorMessage: true));
     try {
       final customSupplyId = await _resolveCustomSupplyId(device);
       final threshold = await deviceThresholdFacadeService.createAndAssign(
@@ -154,10 +186,19 @@ class DeviceDetailBloc extends Bloc<DeviceDetailEvent, DeviceDetailState> {
           device: updated,
           threshold: threshold,
           isSubmitting: false,
+          clearErrorMessage: true,
         ),
       );
     } catch (e) {
-      emit(state.copyWith(isSubmitting: false, errorMessage: e.toString()));
+      emit(
+        state.copyWith(
+          isSubmitting: false,
+          errorMessage: ApiErrorParser.parse(
+            e,
+            fallback: 'Failed to save thresholds',
+          ),
+        ),
+      );
     }
   }
 

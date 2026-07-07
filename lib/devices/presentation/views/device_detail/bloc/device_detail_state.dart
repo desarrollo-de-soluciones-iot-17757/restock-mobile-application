@@ -23,12 +23,15 @@ class DeviceDetailState {
     DeviceThreshold? threshold,
     String? errorMessage,
     bool? isSubmitting,
+    bool clearErrorMessage = false,
   }) {
     return DeviceDetailState(
       status: status ?? this.status,
       device: device ?? this.device,
       threshold: threshold ?? this.threshold,
-      errorMessage: errorMessage ?? this.errorMessage,
+      errorMessage: clearErrorMessage
+          ? null
+          : errorMessage ?? this.errorMessage,
       isSubmitting: isSubmitting ?? this.isSubmitting,
     );
   }

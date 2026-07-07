@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:http/http.dart' show Response;
 import 'package:restock/devices/infrastructure/models/assign_batch_request.dart';
 import 'package:restock/devices/infrastructure/models/assign_branch_request.dart';
 import 'package:restock/devices/infrastructure/models/assign_threshold_request.dart';
@@ -32,7 +33,7 @@ class DeviceRemoteDataProvider {
             .map((j) => DeviceResponseModel.fromJson(j as Map<String, dynamic>))
             .toList();
       }
-      throw Exception('Failed to load devices: ${response.statusCode}');
+      _throwHttpException('Failed to load devices', response);
     } catch (e) {
       rethrow;
     }
@@ -49,7 +50,7 @@ class DeviceRemoteDataProvider {
           jsonDecode(response.body) as Map<String, dynamic>,
         );
       }
-      throw Exception('Failed to get device: ${response.statusCode}');
+      _throwHttpException('Failed to get device', response);
     } catch (e) {
       rethrow;
     }
@@ -74,7 +75,7 @@ class DeviceRemoteDataProvider {
           jsonDecode(response.body) as Map<String, dynamic>,
         );
       }
-      throw Exception('Failed to register device: ${response.statusCode}');
+      _throwHttpException('Failed to register device', response);
     } catch (e) {
       rethrow;
     }
@@ -88,19 +89,15 @@ class DeviceRemoteDataProvider {
       final uri = Uri.parse(
         '${ApiConstants.baseUrl}${DevicesApiConstants.deviceSpecifications.replaceAll('{deviceId}', deviceId)}',
       );
-      final response = await http.put(
+      final response = await http.patch(
         uri,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(request.toJson()),
       );
-      if (response.statusCode == HttpStatus.ok) {
-        return DeviceResponseModel.fromJson(
-          jsonDecode(response.body) as Map<String, dynamic>,
-        );
+      if (_isSuccessfulWrite(response)) {
+        return _deviceFromWriteResponse(response, deviceId);
       }
-      throw Exception(
-        'Failed to update specifications: ${response.statusCode}',
-      );
+      _throwHttpException('Failed to update specifications', response);
     } catch (e) {
       rethrow;
     }
@@ -114,17 +111,15 @@ class DeviceRemoteDataProvider {
       final uri = Uri.parse(
         '${ApiConstants.baseUrl}${DevicesApiConstants.deviceConfigBranch.replaceAll('{deviceId}', deviceId)}',
       );
-      final response = await http.put(
+      final response = await http.patch(
         uri,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(request.toJson()),
       );
-      if (response.statusCode == HttpStatus.ok) {
-        return DeviceResponseModel.fromJson(
-          jsonDecode(response.body) as Map<String, dynamic>,
-        );
+      if (_isSuccessfulWrite(response)) {
+        return _deviceFromWriteResponse(response, deviceId);
       }
-      throw Exception('Failed to assign branch: ${response.statusCode}');
+      _throwHttpException('Failed to assign branch', response);
     } catch (e) {
       rethrow;
     }
@@ -138,17 +133,15 @@ class DeviceRemoteDataProvider {
       final uri = Uri.parse(
         '${ApiConstants.baseUrl}${DevicesApiConstants.deviceConfigBatch.replaceAll('{deviceId}', deviceId)}',
       );
-      final response = await http.put(
+      final response = await http.patch(
         uri,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(request.toJson()),
       );
-      if (response.statusCode == HttpStatus.ok) {
-        return DeviceResponseModel.fromJson(
-          jsonDecode(response.body) as Map<String, dynamic>,
-        );
+      if (_isSuccessfulWrite(response)) {
+        return _deviceFromWriteResponse(response, deviceId);
       }
-      throw Exception('Failed to assign batch: ${response.statusCode}');
+      _throwHttpException('Failed to assign batch', response);
     } catch (e) {
       rethrow;
     }
@@ -162,21 +155,15 @@ class DeviceRemoteDataProvider {
       final uri = Uri.parse(
         '${ApiConstants.baseUrl}${DevicesApiConstants.deviceConfigThreshold.replaceAll('{deviceId}', deviceId)}',
       );
-      final response = await http.put(
+      final response = await http.patch(
         uri,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(request.toJson()),
       );
-      if (response.statusCode == HttpStatus.ok ||
-          response.statusCode == HttpStatus.noContent) {
-        if (response.body.isEmpty) {
-          return getDeviceById(deviceId);
-        }
-        return DeviceResponseModel.fromJson(
-          jsonDecode(response.body) as Map<String, dynamic>,
-        );
+      if (_isSuccessfulWrite(response)) {
+        return _deviceFromWriteResponse(response, deviceId);
       }
-      throw Exception('Failed to assign threshold: ${response.statusCode}');
+      _throwHttpException('Failed to assign threshold', response);
     } catch (e) {
       rethrow;
     }
@@ -190,17 +177,15 @@ class DeviceRemoteDataProvider {
       final uri = Uri.parse(
         '${ApiConstants.baseUrl}${DevicesApiConstants.deviceConfigMeasurement.replaceAll('{deviceId}', deviceId)}',
       );
-      final response = await http.put(
+      final response = await http.patch(
         uri,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(request.toJson()),
       );
-      if (response.statusCode == HttpStatus.ok) {
-        return DeviceResponseModel.fromJson(
-          jsonDecode(response.body) as Map<String, dynamic>,
-        );
+      if (_isSuccessfulWrite(response)) {
+        return _deviceFromWriteResponse(response, deviceId);
       }
-      throw Exception('Failed to update measurement: ${response.statusCode}');
+      _throwHttpException('Failed to update measurement', response);
     } catch (e) {
       rethrow;
     }
@@ -221,12 +206,35 @@ class DeviceRemoteDataProvider {
       );
       if (response.statusCode != HttpStatus.ok &&
           response.statusCode != HttpStatus.noContent) {
-        throw Exception(
-          'Failed to update device status: ${response.statusCode}',
-        );
+        _throwHttpException('Failed to update device status', response);
       }
     } catch (e) {
       rethrow;
     }
+  }
+
+  bool _isSuccessfulWrite(Response response) {
+    return response.statusCode == HttpStatus.ok ||
+        response.statusCode == HttpStatus.noContent;
+  }
+
+  Future<DeviceResponseModel> _deviceFromWriteResponse(
+    Response response,
+    String deviceId,
+  ) {
+    if (response.body.trim().isEmpty) {
+      return getDeviceById(deviceId);
+    }
+    return Future.value(
+      DeviceResponseModel.fromJson(
+        jsonDecode(response.body) as Map<String, dynamic>,
+      ),
+    );
+  }
+
+  Never _throwHttpException(String message, Response response) {
+    final body = response.body.trim();
+    final details = body.isEmpty ? '' : ' $body';
+    throw Exception('$message: ${response.statusCode}$details');
   }
 }

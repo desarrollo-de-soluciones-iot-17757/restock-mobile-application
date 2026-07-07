@@ -87,7 +87,7 @@ Future<void> setupDependencies() async {
   await devicesDependencies();
 }
 
-/// Secure Storage
+/// Configures dependencies for secure local key-value storage.
 Future<void> secureStorageDependencies() async {
   serviceLocator.registerLazySingleton<FlutterSecureStorage>(
     () => const FlutterSecureStorage(
@@ -102,6 +102,7 @@ Future<void> secureStorageDependencies() async {
   );
 }
 
+/// Configures the local SQLite database client dependency.
 Future<void> localDatabase() async {
   serviceLocator.registerLazySingleton<AppDatabase>(() => AppDatabase());
 }
@@ -436,7 +437,7 @@ Future<void> subscriptionsDependencies() async {
   // serviceLocator.registerLazySingleton<YourSubscriptionService>(() => YourSubscriptionServiceImpl());
 }
 
-/// Configures the dependencies for the Subscriptions context.
+/// Configures the dependencies for the Tracking context.
 Future<void> trackingDependencies() async {
   // For example:
   // serviceLocator.registerLazySingleton<YourTrackingService>(() => YourTrackingServiceImpl());
